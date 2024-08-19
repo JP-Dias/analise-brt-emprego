@@ -1,0 +1,3 @@
+# BRT Sul e o Acesso a Emprego em Brasília: Uma análise via Modelo de Diferenças em Diferenças
+
+This study examines the impact of the Expresso BRT Sul in Brasília on employment accessibility, utilizing a Difference-in-Differences (DiD) model with data from the Employment and Unemployment Survey (PED - DF). The research focuses on the causal relationship between improved public transport infrastructure and employment outcomes in the peripheral regions of Gama and Santa Maria, following the BRT's inauguration in 2014. The analysis highlights the reduction in travel time and increased accessibility to central areas, evaluating effects on employment probability, wages, working hours, and job formalization.
