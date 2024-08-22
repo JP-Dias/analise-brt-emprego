@@ -1,19 +1,24 @@
 # Pacotes ----
-library(tidyverse) 
-library(mapview)   
-library(ggmap)     
-library(sf)        
-library(dplyr)     
+library(tidyverse)
+library(mapview)
+library(ggmap)
+library(sf)
+library(dplyr)
 
 # Carregamento de Dados ----
 malha_2010 <- read_sf("Shapes/2010/53SEE250GC_SIR.shp")
 
-# Carrega e filtra a base PED para os conglomerados de interesse
 ped <- readRDS("Rds/ped_empilhada.RDS") |>
-  mutate(conglom = substr(conglom, 1, 6)) |> 
-  filter(substr(conglom, 1, 3) %in% c(242, 363)) |> 
-  select(ano, mes, domic, conglom) |> 
-  unique() 
+  mutate(conglom = substr(conglom, 1, 6)) |>
+  filter(substr(conglom, 1, 3) %in% c(242, 363)) |>
+  select(ano, mes, domic, conglom) |>
+  unique()
+
+estacoes_brt <- readRDS("rds/geo_estacoes_brt.RDS")
+
+# Definição de Parâmetros ----
+distancia_tratamento <- 1300
+buffers <- st_buffer(estacoes_brt, dist = distancia_tratamento) 
 
 # Funções de Mapeamento de Setores ----
 setores_ped_gama <- function(ID) {
@@ -49,11 +54,10 @@ setores_ped_gama <- function(ID) {
     ID == 652 ~ "132",
     ID == 655 ~ "133",
     ID == 662 ~ "134",
-    TRUE ~ NA_character_ # Caso não haja correspondência, retorna NA
+    TRUE ~ NA_character_
   )
 }
 
-# Função que mapeia IDs para setores PED em Santa Maria
 setores_ped_sm <- function(ID) {
   case_when(
     ID %in% c(4146, 4242) ~ "011",
@@ -80,7 +84,7 @@ setores_ped_sm <- function(ID) {
     ID %in% 4122 ~ "118",
     ID %in% 4121 ~ "108",
     ID %in% c(4189, 4190) ~ "107",
-    TRUE ~ NA_character_ # Caso não haja correspondência, retorna NA
+    TRUE ~ NA_character_
   )
 }
 
@@ -91,24 +95,32 @@ malha_2010 <- malha_2010 |>
     setores_ped_sm = setores_ped_sm(ID)
   )
 
-# Filtra e transforma a malha com base nos setores mapeados e na PED
 malha_ped_09_16 <- malha_2010 |>
-  filter(!is.na(setores_ped_gama) | !is.na(setores_ped_sm)) |> 
+  filter(!is.na(setores_ped_gama) | !is.na(setores_ped_sm)) |>
   mutate(
     conglom = ifelse(!is.na(setores_ped_gama),
-                     paste0(242, setores_ped_gama), 
-                     paste0(363, setores_ped_sm))   
+                     paste0(242, setores_ped_gama),
+                     paste0(363, setores_ped_sm))
   ) |>
-  select(conglom, ID, CD_GEOCODI, NM_SUBDIST) |>
-  left_join(ped) |> 
-  unique() |> 
-  st_drop_geometry() 
+  select(conglom, ID, CD_GEOCODI, NM_SUBDIST, geometry) |>
+  left_join(ped) |>
+  unique()
 
-# Cria uma base única de setores para PED 2009-2016 ----
-setores_ped_09_16 <- malha_ped_09_16 |> 
-  select(-c(conglom, ano, mes, domic)) |> 
-  unique() 
+setores_ped_09_16 <- malha_ped_09_16 |> select(-c(conglom,ano,mes,domic)) |> unique()
 
-# Salva o dataset consolidado de setores ----
-saveRDS(setores_ped_09_16, "rds/setores_censitarios_ped_09_16.RDS")
+saveRDS(setores_ped_09_16,"rds/setores_censitarios_ped_09_16.RDS")
 
+# Função de Classificação de Setores ----
+classifica_setor <- function(setores, buffers) {
+  setores_transformados <- st_transform(setores, st_crs(buffers))
+  intersecao <- st_intersects(setores_transformados, buffers)
+  
+  setores_transformados$grupo <- apply(intersecao, 1, function(x) ifelse(any(x), "Tratamento", "Controle"))
+  
+  return(setores_transformados)
+}
+
+# Aplicação da Classificação ----
+grupos_domic_ped_09_16 <- classifica_setor(malha_ped_09_16, buffers)
+
+saveRDS(grupos_domic_ped_09_16,"rds/domic_setores_grupos_ped_09_16.RDS")
