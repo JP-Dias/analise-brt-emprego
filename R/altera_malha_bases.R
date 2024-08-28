@@ -7,6 +7,8 @@ library(dplyr)
 library(ggmap)
 library(sf)
 
+options(scipen = 999)
+
 source("R/gera_bases_grupos_ped_09_16.R")
 source("R/gera_bases_grupos_ped_16_19.R")
 
@@ -36,9 +38,9 @@ malha_2000_translated <- st_geometry(malha_2000) + c(dx, dy)
 st_geometry(malha_2000) <- malha_2000_translated
 
 # Reatribuindo o CRS original à malha
-st_crs(malha_2000) <- st_crs(malha_2010)  # ou use o CRS original da malha_2000
+st_crs(malha_2000) <- st_crs(malha_2010)  
 
-# mapview(malha_2010,col.regions = "grey" ,col = "blue",alpha.regions = 0.2) + mapview(malha_2000,col.regions = "grey" ,col = "red",alpha.regions = 0.2)
+#mapview(malha_2010,col.regions = "blue" ,col = "blue",alpha.regions = 00.1) + mapview(malha_2000,col.regions = "red" ,col = "red",alpha.regions = 00.1)
 
 # Junta malha de 2000 com base de relação entre as malhas
 malha_2000_join <- malha_2000 |> 
@@ -51,7 +53,17 @@ saveRDS(malha_2000_join, "Rds/geo_malha_2000_relacao_2010.RDS")
 setores_ped_09_16 <- setores_ped_09_16 |> mutate(CODSETOR2010 = as.double(CD_GEOCODI)) 
 setores_ped_16_19 <- setores_ped_16_19 |> mutate(CODSETOR2010 = as.double(CD_GEOCODI))
 
+
 join_ped_09_16_malha_2000 <- malha_2000_join |> 
   full_join(setores_ped_09_16) |> 
-  select(CODSETOR2000,ano,mes,domic,conglom,NM_SUBDIST) |> 
+  select(CODSETOR2000,CODSETOR2010,NM_SUBDIST) |> 
   na.omit() |> unique() 
+  
+join_ped_16_19_malha_2000 <- malha_2000_join |> 
+  full_join(setores_ped_16_19) |> 
+  select(CODSETOR2000,CODSETOR2010,NM_SUBDIST) |> 
+  filter(NM_SUBDIST %in% c("GAMA", "SANTA MARIA")) |> 
+  na.omit() |> unique() 
+
+mapview(join_ped_09_16_malha_2000, col.regions = "blue" ,col = "blue",alpha.regions = 00.1) + 
+  mapview(join_ped_16_19_malha_2000, col.regions = "red" ,col = "red",alpha.regions = 00.1)
