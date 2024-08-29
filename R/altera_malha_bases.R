@@ -1,3 +1,7 @@
+#'*Script que traz as informações setoriais da malha de 2010 para a malha de 2000*
+#'*A malha de 2000 tem um problema de projeção, então o script também resolve isso*
+
+# Pacotes ----
 library(haven)
 library(tidyverse)
 library(data.table)
@@ -9,23 +13,26 @@ library(sf)
 
 options(scipen = 999)
 
+# Lê as bases de PED
 source("R/gera_bases_grupos_ped_09_16.R")
 source("R/gera_bases_grupos_ped_16_19.R")
 
 rm(list = setdiff(ls(), c("setores_ped_09_16", "setores_ped_16_19")))
 
+# Base de compatibilização de malhas
 relacao_malhas <- read_sav("relacao/malhas2000e2010/Compatibiliza DF FINAL.sav")
 
+# Malhas Censitárias
 malha_2000 <- read_sf("Shapes/2000/5300108.SHP")
 malha_2010 <- read_sf("Shapes/2010/53SEE250GC_SIR.shp")
 
-malha_2000 <- st_set_crs(malha_2000, 32723)
-malha_2000 <- st_transform(malha_2000, 32723)
+# malha_2000 <- st_set_crs(malha_2000, 32723)
+# malha_2000 <- st_transform(malha_2000, 32723)
 
-
+# Corrije problema de projeção das malhas ----
+# Altera padrão das malhas
 malha_2000 <- st_transform(malha_2000, 4674)  # Reprojetando para SIRGAS 2000
 malha_2010 <- st_transform(malha_2010, 4674)  # Reprojetando para SIRGAS 2000
-
 
 # Calculando a diferença de deslocamento
 dx <- 0.0007  # Defina o valor de deslocamento no eixo x
