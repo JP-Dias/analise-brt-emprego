@@ -26,8 +26,8 @@ relacao_malhas <- read_sav("relacao/malhas2000e2010/Compatibiliza DF FINAL.sav")
 malha_2000 <- read_sf("Shapes/2000/5300108.SHP")
 malha_2010 <- read_sf("Shapes/2010/53SEE250GC_SIR.shp")
 
-# malha_2000 <- st_set_crs(malha_2000, 32723)
-# malha_2000 <- st_transform(malha_2000, 32723)
+malha_2000 <- st_set_crs(malha_2000, 32723)
+malha_2000 <- st_transform(malha_2000, 32723)
 
 # Corrije problema de projeção das malhas ----
 # Altera padrão das malhas
@@ -72,5 +72,6 @@ join_ped_16_19_malha_2000 <- malha_2000_join |>
   filter(NM_SUBDIST %in% c("GAMA", "SANTA MARIA")) |> 
   na.omit() |> unique() 
 
-mapview(join_ped_09_16_malha_2000, col.regions = "blue" ,col = "blue",alpha.regions = 00.1) + 
-  mapview(join_ped_16_19_malha_2000, col.regions = "red" ,col = "red",alpha.regions = 00.1)
+rm(list = setdiff(ls(), c("join_ped_09_16_malha_2000", "join_ped_16_19_malha_2000")))
+
+# mapview(join_ped_09_16_malha_2000, col.regions = "blue" ,col = "blue",alpha.regions = 00.1) + mapview(join_ped_16_19_malha_2000, col.regions = "red" ,col = "red",alpha.regions = 00.1)
