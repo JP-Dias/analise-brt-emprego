@@ -35,7 +35,7 @@ classifica_setor <- function(setores, buffers) {
 
 # Função de Classificação de Setores ----
 classifica_setor <- function(setores, buffers) {
-  # Corrigir geometrias inválidas
+  # Corrigir geometrias inválidas ç6
   setores <- st_make_valid(setores)
   buffers <- st_make_valid(buffers)
   
@@ -68,17 +68,19 @@ grupos_30_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer30)
 sf_use_s2(TRUE) 
 
 join_09_16 <- ped |>
-  mutate(conglom = substr(conglom,1,6)) |> 
+  mutate(conglom = as.double(substr(conglom,1,6))) |> 
   left_join(grupos_15_ped_09_16 |> rename(grupo_15 = grupo) |> st_drop_geometry()) |> 
   left_join(grupos_20_ped_09_16 |> rename(grupo_20 = grupo) |> st_drop_geometry()) |> 
   left_join(grupos_25_ped_09_16 |> rename(grupo_25 = grupo) |> st_drop_geometry()) |> 
-  left_join(grupos_30_ped_09_16 |> rename(grupo_30 = grupo) |> st_drop_geometry())
+  left_join(grupos_30_ped_09_16 |> rename(grupo_30 = grupo) |> st_drop_geometry()) |> 
+  filter(!is.na(CODSETOR2000)) |> unique()
 
 join_16_19 <- nova_ped |> 
   left_join(grupos_15_ped_16_19 |> rename(grupo_15 = grupo) |> st_drop_geometry()) |> 
   left_join(grupos_20_ped_16_19 |> rename(grupo_20 = grupo) |> st_drop_geometry()) |> 
   left_join(grupos_25_ped_16_19 |> rename(grupo_25 = grupo) |> st_drop_geometry()) |> 
-  left_join(grupos_30_ped_16_19 |> rename(grupo_30 = grupo) |> st_drop_geometry())
+  left_join(grupos_30_ped_16_19 |> rename(grupo_30 = grupo) |> st_drop_geometry()) |> 
+  filter(!is.na(CODSETOR2000)) |> unique()
 
 base <- rbind(
   join_09_16,
