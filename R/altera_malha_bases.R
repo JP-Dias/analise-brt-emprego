@@ -17,7 +17,7 @@ options(scipen = 999)
 source("R/gera_bases_grupos_ped_09_16.R")
 source("R/gera_bases_grupos_ped_16_19.R")
 
-rm(list = setdiff(ls(), c("setores_ped_09_16", "setores_ped_16_19")))
+rm(list = setdiff(ls(), c("malha_ped_09_16", "malha_ped_16_19")))
 
 # Base de compatibilização de malhas
 relacao_malhas <- read_sav("relacao/malhas2000e2010/Compatibiliza DF FINAL.sav")
@@ -57,18 +57,19 @@ malha_2000_join <- malha_2000 |>
 
 saveRDS(malha_2000_join, "Rds/geo_malha_2000_relacao_2010.RDS")
 
-setores_ped_09_16 <- setores_ped_09_16 |> mutate(CODSETOR2010 = as.double(CD_GEOCODI)) 
-setores_ped_16_19 <- setores_ped_16_19 |> mutate(CODSETOR2010 = as.double(CD_GEOCODI))
+setores_ped_09_16 <- malha_ped_09_16 |> mutate(CODSETOR2010 = as.double(CD_GEOCODI)) 
+setores_ped_16_19 <- malha_ped_16_19 |> mutate(CODSETOR2010 = as.double(CD_GEOCODI))
 
 
 join_ped_09_16_malha_2000 <- malha_2000_join |> 
   full_join(setores_ped_09_16) |> 
-  select(CODSETOR2000,CODSETOR2010,NM_SUBDIST) |> 
+  select(CODSETOR2000,CODSETOR2010,NM_SUBDIST,conglom, ano, mes, domic) |> 
+  mutate(conglom = as.double(conglom)) |> 
   na.omit() |> unique() 
   
 join_ped_16_19_malha_2000 <- malha_2000_join |> 
-  full_join(setores_ped_16_19) |> 
-  select(CODSETOR2000,CODSETOR2010,NM_SUBDIST) |> 
+  full_join(setores_ped_16_19) |>
+  select(CODSETOR2000,CODSETOR2010,NM_SUBDIST,ano, mes, domic) |> 
   filter(NM_SUBDIST %in% c("GAMA", "SANTA MARIA")) |> 
   na.omit() |> unique() 
 

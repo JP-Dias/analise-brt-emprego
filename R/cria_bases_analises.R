@@ -21,5 +21,8 @@ buffer15 <- st_buffer(estacoes_brt, dist = 1500)
 buffer20 <- st_buffer(estacoes_brt, dist = 2000)
 
 ped |> left_join(join_ped_09_16_malha_2000)
+
 nova_ped |> left_join(join_ped_16_19_malha_2000)
+
+mapview(buffer15,alpha.regions = .2) + mapview(buffer20,alpha.regions = .2) + mapview(estacoes_brt)
 
