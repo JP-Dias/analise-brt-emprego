@@ -81,6 +81,8 @@ base <- rbind(
 # Cria Dummies
 base <- dummy_cols(base)
 
+
+# Salva
 saveRDS(base, analysis("dados/base.RDS"))
 
 
