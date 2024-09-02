@@ -72,13 +72,13 @@ dados_ped <- ped |>
     setor_atv, # Setor de atividade CNAE
     escol, # Grau de instrução
     idade = c020, # Idade
-    cor = c050, # Cor
+    cor, # Cor
     fem, # Sexo
     mora_mesma_ra, # Mora na Messma RA 12 meses atrás
     pessoas = a090, # Total de moradores no domicílio
     posicao_fam # Posição na família
   )
 
-saveRDS(dados,"Rds/nova_ped_vars.RDS")
+saveRDS(dados_ped,"Rds/nova_ped_vars.RDS")
 
 
