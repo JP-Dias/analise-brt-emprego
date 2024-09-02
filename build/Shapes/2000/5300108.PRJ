@@ -1,0 +1,6 @@
+&REM Universal Transverse Mercator, Zone 23
+&REM UTM-23S
+PROJECTION UTM
+UNITS METERS
+ZONE 23S
+PARAMETERS
