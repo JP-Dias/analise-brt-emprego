@@ -1,4 +1,110 @@
 # Pacotes
+library(tidyverse)
+library(plm)
+library(stargazer)
 
 base <- readRDS("analysis/dados/base.RDS")
+
+# Criando o data frame com os dados do PIB
+pib <- data.frame(
+  ano = as.character(2003:2021),
+  pib_br = c(1.1, 5.8, 3.2, 4.0, 6.1, 5.1, -0.1, 7.5, 4.0, 1.9, 3.0, 0.5, -3.5, -3.3, 1.3, 1.8, 1.2, -3.3, 4.8),
+  pib_df = c(0.7, 5.0, 5.8, 5.5, 6.6, 4.5, 5.0, 4.4, 3.7, 0.8, 3.7, 2.0, -1.0, 0.0, 0.3, 1.7, 2.1,-2.6,3.0)
+)
+
+data <- base |> 
+  filter(!is.na(ocupado),
+         !is.na(escol_sup_com)) |> 
+  select(ocupado,informal,ln_rend_bruto,ln_horas_trab,
+         intervencao, trat20 = grupo_20,trat30 = grupo_30,
+         ano,mes,ra = NM_SUBDIST,
+         idade, escol_sup_com) |> 
+  left_join(pib)
+
+
+ modelo_1 <- plm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao) + pib_df,
+                 model = "within",
+                 index = c("ano"),
+                 data = data)
+ 
+ stargazer(modelo_1, type = "text")
+ 
+ modelo_2 <- plm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao),
+                 model = "within",
+                 index = c("ra"),
+                 data = data) 
+ 
+ modelo_3 <- lm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao) + pib_df,
+                data = data) 
+ 
+stargazer(modelo_3, type = "text")
+
+
+base |> group_by(ano) |> summarise(prop=mean(ocupado,na.rm = T))
+ 
+base |> 
+  group_by(intervencao,grupo_20) |> 
+  summarise(emprego = mean(ocupado,na.rm = T),
+            horas_trab = mean(horas_trab,na.rm = T),
+            rend = mean(rend_bruto,na.rm = T),
+            mulher = mean(fem),
+            sup = mean(escol_sup_com,na.rm = T),
+            chefe = mean(posicao_fam_chefe)
+            )
+
+base |>
+  mutate(grupo_20 = as.factor(grupo_20),
+         ano = as.numeric(as.character(ano))) |>  # Convert ano to numeric
+  group_by(ano, grupo_20) |>
+  summarise(media = mean(rend_bruto, na.rm = TRUE)) |>
+  ggplot(aes(x = ano, y = media, col = grupo_20, group = grupo_20)) +
+  geom_line(lwd = 1) + 
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "black",alpha = .5) +
+  theme_bw()
+
+base |>
+  mutate(grupo_20 = as.factor(grupo_20),
+         ano = as.numeric(as.character(ano))) |>  # Convert ano to numeric
+  group_by(ano, grupo_20) |>
+  summarise(media = mean(horas_trab, na.rm = TRUE)) |>
+  ggplot(aes(x = ano, y = media, col = grupo_20, group = grupo_20)) +
+  geom_line(lwd = 1) + 
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "black",alpha = .5) +
+  theme_bw()
+
+base |>
+  mutate(grupo_20 = as.factor(grupo_20),
+         ano = as.numeric(as.character(ano))) |>  # Convert ano to numeric
+  group_by(ano, grupo_20) |>
+  summarise(media = mean(ocupado,na.rm = T)) |>
+  ggplot(aes(x = ano, y = media, col = grupo_20, group = grupo_20)) +
+  geom_line(lwd = 1) + 
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "black",alpha = .5) +
+  theme_bw()
+
+
+base |>
+  mutate(grupo_20 = as.factor(grupo_20),
+         ano = as.numeric(as.character(ano))) |>  # Convert ano to numeric
+  group_by(ano, grupo_20) |>
+  summarise(media = mean(informal,na.rm = T)) |>
+  ggplot(aes(x = ano, y = media, col = grupo_20, group = grupo_20)) +
+  geom_line(lwd = 1) + 
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "black",alpha = .5) +
+  theme_bw()
+
+base |>
+  mutate(grupo_20 = as.factor(grupo_20),
+         ano = as.numeric(as.character(ano))) |>  # Convert ano to numeric
+  group_by(ano, grupo_20) |>
+  summarise(media = mean(escol_sup_com,na.rm = T)) |>
+  ggplot(aes(x = ano, y = media, col = grupo_20, group = grupo_20)) +
+  geom_line(lwd = 1) + 
+  geom_vline(xintercept = 2014, linetype = "dashed", color = "black",alpha = .5) +
+  theme_bw()
+
+base |> 
+  mutate(grupo_20 = as.factor(grupo_20)) |> 
+  group_by(ano,grupo_20) |> 
+  summarise(media = mean(rend_liquido,na.rm = T)) |> view()
 

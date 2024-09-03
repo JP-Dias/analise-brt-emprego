@@ -66,5 +66,3 @@ malha_ped_16_19 <- malha_2010 |>
   select(ano, mes, domic, ID, CD_GEOCODI, NM_SUBDIST) |> 
   na.omit() |> 
   st_drop_geometry() 
-
-

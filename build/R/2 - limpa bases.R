@@ -91,9 +91,12 @@ dados_nova_ped <- nova_ped |>
       sit %in% 1:3 ~ 0,
       TRUE ~ NA_integer_
     ),
-    rend_bruto = ifelse(as.numeric(f481) %in% c(-0.01,-1,0,1e9,1e9 + 1), NA_integer_, as.numeric(f481)),  # Remuneração bruta (F481)
+    rend_bruto = case_when(ano %in% c(2016,2017) ~ifelse(as.numeric(f331) %in% c(-0.01,-1,0,1e9,1e9 + 1), NA_integer_, as.numeric(f331)),
+                           TRUE~ifelse(as.numeric(f481) %in% c(-0.01,-1,0,1e9,1e9 + 1), NA_integer_, as.numeric(f481))
+                           ),
     rend_liquido = ifelse(as.numeric(f482) %in% c(-0.01,-1, 0,1e9,1e9 + 1), NA_integer_, as.numeric(f482)),  # Remuneração líquida (F482)
-    horas_trab = ifelse(as.numeric(f492) %in% c(-1, 0,1e3,1e3 + 1), NA_integer_, as.numeric(f492)),  # Horas Trabalhadas
+    horas_trab = case_when(ano %in% c(2016,2017) ~ifelse(as.numeric(f340) %in% c(-1, 0,1e3,1e3 + 1), NA_integer_, as.numeric(f340)),
+              TRUE ~ifelse(as.numeric(f492) %in% c(-1, 0,1e3,1e3 + 1), NA_integer_, as.numeric(f492))),
     escol = case_when(
       inst %in% c(2,3) ~ "analf",
       inst == 4 ~ "fund_inc",
@@ -148,8 +151,10 @@ dados_nova_ped <- nova_ped |>
     posicao_fam # Posição na família
   )
 
-
 saveRDS(dados_nova_ped,build("Rds/nova_ped_vars.RDS"))
+
+table(nova_ped$ano,nova_ped$f492)
+
 
 # Estações BRT ----
 brt <- read_sf(build("Shapes/BRT/estacoes_BRT.shp")) |> slice(1:11)
@@ -165,4 +170,3 @@ estacoes_brt_sf <- estacoes_brt |> st_as_sf(coords = c("lon_brt", "lat_brt"), cr
 
 ## Salva Objeto ----
 saveRDS(estacoes_brt_sf,build("Rds/geo_estacoes_brt.RDS"))
-

@@ -1,5 +1,4 @@
 
-
 source("config.R")
 source(build("R/4 - prepara malha.R"))
 
@@ -39,7 +38,6 @@ grupos_20_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer20) |> 
 grupos_25_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer25) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
 grupos_30_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer30) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
 sf_use_s2(TRUE) 
-
 
 # Cria grupos de Tratamento ----
 # PED
@@ -81,13 +79,5 @@ base <- rbind(
 # Cria Dummies
 base <- dummy_cols(base)
 
-
 # Salva
 saveRDS(base, analysis("dados/base.RDS"))
-
-
-
-
-
-
-
