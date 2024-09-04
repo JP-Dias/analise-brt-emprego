@@ -32,8 +32,9 @@ data <- base |>
 
 
 m1 <- lm(formula = ocupado ~ trat20 + intervencao_14_15 + intervencao_15_17 + intervencao_17_19 + 
-                   (trat20 * intervencao_14_15) + (trat20 * intervencao_15_17) + (trat20 * intervencao_17_19) + pib_df,
-                 data = data) 
+                   (trat20 * intervencao_14_15) + (trat20 * intervencao_15_17) + (trat20 * intervencao_17_19) -1,
+                 data = data,
+         weights = data$fator) 
 
 m2 <- lm(formula = informal ~ trat20 + intervencao_14_15 + intervencao_15_17 + intervencao_17_19 + 
            (trat20 * intervencao_14_15) + (trat20 * intervencao_15_17) + (trat20 * intervencao_17_19) + pib_df,
