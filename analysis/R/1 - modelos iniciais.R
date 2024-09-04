@@ -15,8 +15,12 @@ pib <- data.frame(
 data <- base |> 
   filter(!is.na(ocupado),
          !is.na(escol_sup_com)) |> 
+  mutate(
+    intervencao_14_15 = ifelse(ano %in% c("2014","2015"),1,0),
+    intervencao_15_17 = ifelse(ano %in% c("2014","2015"),1,0),
+         )
   select(ocupado,informal,ln_rend_bruto,ln_horas_trab,
-         intervencao, trat20 = grupo_20,trat30 = grupo_30,
+         intervencao_14_19 = intervencao, trat20 = grupo_20,trat30 = grupo_30,
          ano,mes,ra = NM_SUBDIST,
          idade, escol_sup_com) |> 
   left_join(pib)
@@ -98,10 +102,26 @@ base |>
          ano = as.numeric(as.character(ano))) |>  # Convert ano to numeric
   group_by(ano, grupo_20) |>
   summarise(media = mean(escol_sup_com,na.rm = T)) |>
-  ggplot(aes(x = ano, y = media, col = grupo_20, group = grupo_20)) +
+  ggplot(aes(x = factor(ano), y = media, col = grupo_20, group = grupo_20, linetype = grupo_20)) +
   geom_line(lwd = 1) + 
-  geom_vline(xintercept = 2014, linetype = "dashed", color = "black",alpha = .5) +
-  theme_bw()
+  scale_color_manual(values = c("grey10","grey40")) +
+  geom_vline(xintercept = "2014", linetype = "dashed", color = "black",alpha = .5) +
+  theme_linedraw()
+
+
+base |>
+  mutate(grupo_20 = as.factor(grupo_20),
+         ano_mes = paste0(base$ano,"-",ifelse(base$mes %in% 10:19,base$mes,paste0(0,base$mes))) |> lubridate::ym()) |>  # Convert ano to numeric
+  group_by(grupo_20,ano_mes) |>
+  summarise(media = mean(ocupado,na.rm = T)) |>
+  arrange(grupo_20,ano_mes) |>
+  mutate(mm_3 = zoo::rollmean(media,12,fill = NA)) |>
+  ggplot(aes(x = ano_mes, y = mm_3, col = grupo_20, group = grupo_20, linetype = grupo_20)) +
+  scale_x_date(breaks = "2 years") +
+  geom_line(lwd = 1) + 
+  scale_color_manual(values = c("grey10","grey40")) +
+  geom_vline(xintercept = lubridate::ym(2014-06), linetype = "dashed", color = "black",alpha = .5) +
+  theme_linedraw()
 
 base |> 
   mutate(grupo_20 = as.factor(grupo_20)) |> 
