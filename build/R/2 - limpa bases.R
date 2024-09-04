@@ -70,7 +70,8 @@ dados_ped <- ped |>
     fem, # Sexo
     mora_mesma_ra, # Mora na Messma RA 12 meses atrás
     pessoas = a090, # Total de moradores no domicílio
-    posicao_fam # Posição na família
+    posicao_fam, # Posição na família
+    peso = fator
   )
 
 saveRDS(dados_ped,build("Rds/ped_vars.RDS"))
@@ -82,7 +83,7 @@ nova_ped <- readRDS(build("Rds/nova_ped_empilhada.RDS"))
 ## Seleção e renomeação das variáveis ----
 dados_nova_ped <- nova_ped |> 
   mutate(
-    informal = ifelse(pos == 2 | (pos %in% 5:6 & f280 == 2), 1, 0),  # Posição na ocupação 
+    informal = ifelse(pos == 2 | (pos %in% 5:6 & (ano %in% c(2016,2017) & f250 == 2 | ano %in% c(2018,2019) & f280 == 2)), 1, 0),  # Posição na ocupação 
     fem = case_when(c030 == 1 ~ 0, c030 == 2 ~ 1,TRUE ~ NA_integer_),
     trab_plano = ifelse(f202 == 5301, 1, 0),  # Local de trabalho principal 
     mora_mesma_ra = ifelse(((m041 == 1 | m05a >= 1) | (m010 == 1 | m02a >= 1)), 1, 0),  # Residia na mesma RA 12 meses atrás ou sempre morou na RA
@@ -148,7 +149,8 @@ dados_nova_ped <- nova_ped |>
     fem, # Sexo
     mora_mesma_ra, # Mora na Messma RA 12 meses atrás
     pessoas = totmora, # Total de moradores no domicílio
-    posicao_fam # Posição na família
+    posicao_fam, # Posição na família
+    peso = fator,
   )
 
 saveRDS(dados_nova_ped,build("Rds/nova_ped_vars.RDS"))
