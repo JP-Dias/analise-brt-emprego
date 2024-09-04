@@ -17,25 +17,34 @@ data <- base |>
          !is.na(escol_sup_com)) |> 
   mutate(
     intervencao_14_15 = ifelse(ano %in% c("2014","2015"),1,0),
-    intervencao_15_17 = ifelse(ano %in% c("2014","2015"),1,0),
-         )
+    intervencao_15_17 = ifelse(ano %in% c("2015","2016","2017"),1,0),
+    intervencao_17_19 = ifelse(ano %in% c("2017","2018","2019"),1,0),
+         ) |> 
   select(ocupado,informal,ln_rend_bruto,ln_horas_trab,
-         intervencao_14_19 = intervencao, trat20 = grupo_20,trat30 = grupo_30,
+         intervencao, 
+         intervencao_14_15,
+         intervencao_15_17,
+         intervencao_17_19,
+         trat20 = grupo_20,trat30 = grupo_30,
          ano,mes,ra = NM_SUBDIST,
          idade, escol_sup_com) |> 
   left_join(pib)
 
 
- modelo_1 <- plm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao) + pib_df,
-                 model = "within",
-                 index = c("ano"),
-                 data = data)
+m1 <- lm(formula = ocupado ~ trat20 + intervencao_14_15 + intervencao_15_17 + intervencao_17_19 + 
+                   (trat20 * intervencao_14_15) + (trat20 * intervencao_15_17) + (trat20 * intervencao_17_19) + pib_df,
+                 data = data) 
+
+m2 <- lm(formula = informal ~ trat20 + intervencao_14_15 + intervencao_15_17 + intervencao_17_19 + 
+           (trat20 * intervencao_14_15) + (trat20 * intervencao_15_17) + (trat20 * intervencao_17_19) + pib_df,
+         data = data) 
  
- stargazer(modelo_1, type = "text")
+stargazer(m1, type = "text")
+stargazer(m2, type = "text")
  
  modelo_2 <- plm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao),
                  model = "within",
-                 index = c("ra"),
+                 index = c("ano"),
                  data = data) 
  
  modelo_3 <- lm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao) + pib_df,
