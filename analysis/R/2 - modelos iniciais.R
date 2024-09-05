@@ -31,6 +31,18 @@ data <- base |>
          idade, escol_sup_com, fem, pessoas) |> 
   left_join(pib)
 
+modelo <- plm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao),
+    model = "within",
+    index = c("setor"),
+    data = data) 
+
+stargazer(modelo,type = "text")
+
+
+
+base |>  group_by(ano,grupo_20) |> summarise(n = n()) |> view()
+
+
 
 m1 <- lm(formula = ocupado ~ trat20 + intervencao_14_15 + intervencao_15_17 + intervencao_17_19 + 
                    (trat20 * intervencao_14_15) + (trat20 * intervencao_15_17) + (trat20 * intervencao_17_19)+ pib_df,
@@ -56,7 +68,7 @@ stargazer(m1,m2,m3,m4, type = "text")
  
  m6 <- plm(formula = ocupado ~ trat20 + intervencao + (trat20 * intervencao),
            model = "within",
-           index = c("setor"),
+           index = c("setor","ano"),
            data = data) 
  
  m7 <- plm(formula = ocupado ~ trat20 + intervencao_14_15 + intervencao_15_17 + intervencao_17_19 + 
