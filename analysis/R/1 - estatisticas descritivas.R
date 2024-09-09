@@ -8,7 +8,6 @@ library(zoo)
 # Leitura da base de dados
 base <- readRDS("analysis/dados/base.RDS") #|> filter(NM_SUBDIST == "SANTA MARIA")
 
-
 # Grupos ----
 
 base_g0 <- base |> 
@@ -16,6 +15,8 @@ base_g0 <- base |>
   mutate(grupo = ifelse(grupo_20 == 1,"Treated","Control")) |> 
   group_by(ano,grupo) |>
   summarise(n = n()) 
+
+print(base_g0,n = Inf)
 
 g0 <- base_g0 |> 
   ggplot(aes(x = ano, y = n,col = grupo, group = grupo)) +
