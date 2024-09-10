@@ -1,9 +1,27 @@
 # Pacotes
 library(tidyverse)
 library(plm)
+library(fixest)
 library(stargazer)
 
 base <- readRDS("analysis/dados/base.RDS")
+
+data <- base |> 
+  filter(!is.na(ocupado),!is.na(escol_sup_com)) |> 
+  select(ocupado,informal,ln_rend_bruto,ln_horas_trab,
+         setor = CODSETOR2000,
+         intervencao, trat15 = grupo_15, trat20 = grupo_20,trat30 = grupo_30,
+         ano,mes,ra = NM_SUBDIST, mora_mesma_ra,escol_sup_com,
+         idade, escol_sup_com, fem, pessoas)
+
+iplot(feols(ocupado ~ i(ano,trat20,2014)  | ano  + setor, data))
+
+iplot(feols(informal ~ i(ano,trat20,2014) | ano  + setor, data))
+
+iplot(feols(ln_horas_trab ~ i(ano,trat20,2014) | ano  + setor, data))
+
+iplot(feols(ln_rend_bruto ~ i(ano,trat20,2014) | ano  + setor, data))
+
 
 data <- base |> 
   filter(!is.na(ocupado),!is.na(escol_sup_com)) |> 
@@ -14,17 +32,11 @@ data <- base |>
          idade, escol_sup_com, fem, pessoas)
 
 modelo <- plm(formula = ocupado ~ intervencao + trat20 + (trat20 * intervencao) + escol_sup_com + idade + fem,
-    model = "within",
-    index = c("setor","ano","mes"),
-    data = data) 
+              model = "within",
+              index = c("setor","ano"),
+              data = data) 
 
 stargazer(modelo,type = "text")
-
-
-
-base |>  group_by(ano,grupo_20) |> summarise(n = n()) |> view()
-
-
 
 m1 <- lm(formula = ocupado ~ trat20 + intervencao_14_15 + intervencao_15_17 + intervencao_17_19 + 
                    (trat20 * intervencao_14_15) + (trat20 * intervencao_15_17) + (trat20 * intervencao_17_19)+ pib_df,

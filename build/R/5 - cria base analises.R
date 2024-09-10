@@ -67,12 +67,31 @@ join_16_19 <- nova_ped |>
 base <- rbind(
   join_09_16,
   join_16_19
-) |> 
+)
+
+deflator <- rbind(
+  get_sidra(api = "/t/2951/n6/5300108/v/44/p/all/c315/7169/d/v44%202"), # De 2006 até 2011
+  get_sidra(api = "/t/1100/n6/5300108/v/44/p/all/c315/7169/d/v44%202"), # De 2012 até 2019
+  get_sidra(api = "/t/7063/n6/5300108/v/44/p/all/c315/7169/d/v44%202")) |> # De 2020 em diante
+  dplyr::select(aamm = "Mês (Código)", inpc = "Valor") |> 
+  mutate(aamm1=as.yearmon(as.character(aamm), "%Y%m"),
+         inpc = inpc / 100)|>
+  group_by(aamm1)|>  #faz com que cada operação seja feita dentro de cada 'grupo' 
+  summarise(inpc_mensal = prod(1 + inpc)) |>
+  mutate(inpc_acumulado = cumprod(inpc_mensal),
+         deflator = inpc_acumulado / last(inpc_acumulado)) |>   # Perído base: Jan/2023 
+  dplyr::select(aamm1,deflator)
+
+base <- base |> 
+  mutate(aamm1=as.yearmon(as.character(aamm), "%Y%m")) |> 
+  left_join(deflator) |> 
   mutate(intervencao = ifelse(ano < 2014,0,1),
          ano = as.character(ano),
-         rend_liquido = ifelse(rend_liquido == -0.01,NA_integer_,rend_liquido),
-         ln_rend_bruto = ifelse(!is.na(rend_bruto),log(rend_bruto),0),
-         ln_rend_liquido = ifelse((!is.na(rend_liquido) & rend_liquido != 0) ,log(rend_liquido),0),
+         horas_trab = ifelse(is.na(horas_trab),0,horas_trab),
+         rend_liquido = ifelse(rend_liquido == -0.01,0,rend_liquido/deflator),
+         rend_bruto = ifelse(rend_bruto == -0.01,0,rend_bruto/deflator),
+         ln_rend_bruto = ifelse(!is.na(rend_bruto),log(rend_bruto/deflator),0),
+         ln_rend_liquido = ifelse((!is.na(rend_liquido) & rend_liquido != 0) ,log(rend_liquido/deflator),0),
          ln_horas_trab = ifelse(!is.na(horas_trab),log(horas_trab),0),
          ) 
   

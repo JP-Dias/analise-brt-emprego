@@ -3,12 +3,46 @@ library(tidyverse)
 library(plm)
 library(stargazer)
 library(lubridate)
+library(sidrar)
 library(zoo)
 
 # Leitura da base de dados
 base <- readRDS("analysis/dados/base.RDS") #|> filter(NM_SUBDIST == "SANTA MARIA")
 
-# Grupos ----
+tab1 <- base |>
+  mutate(grupo = ifelse(grupo_20 == 1,"Treated","Control"),
+         periodo = ifelse(aamm < 201406, "Pre-BRT", "Post-BRT")) |>
+  group_by(grupo, periodo) |>
+  summarise(
+    Ocupados_Mean = mean(ocupado, na.rm = TRUE),
+    Ocupados_SD = sd(ocupado, na.rm = TRUE),
+    Informais_Mean = mean(informal, na.rm = TRUE),
+    Informais_SD = sd(informal, na.rm = TRUE),
+    Servicos_Mean = mean(setor_atv_servic, na.rm = TRUE),
+    Servicos_SD = sd(setor_atv_servic, na.rm = TRUE),
+    Rendimento_Mean = mean(rend_liquido, na.rm = TRUE),
+    Rendimento_SD = sd(rend_liquido, na.rm = TRUE),
+    Horas_Mean = mean(horas_trab, na.rm = TRUE),
+    Horas_SD = sd(horas_trab, na.rm = TRUE),
+    Rendimento_Mean = mean(rend_liquido, na.rm = TRUE),
+    Rendimento_SD = sd(rend_liquido, na.rm = TRUE),
+    Moradores_Mean = mean(pessoas, na.rm = TRUE),
+    Moradores_SD = sd(pessoas, na.rm = TRUE)
+  ) |>
+  pivot_longer(cols = Ocupados_Mean:Moradores_SD, names_to = "Variável", values_to = "Valor") |>
+  separate(Variável, into = c("Variável", "Métrica")) |> 
+  pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
+
+tabela <- cbind(tab1 |> filter(periodo == "Pre-BRT") |> select(-periodo),
+                tab1 |> filter(periodo == "Post-BRT")|> select(-periodo)) |> 
+  kableExtra::kable(col.names = c("Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD", 
+                                  "Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD"),
+                    align = "lccccclcccc") |>
+  kableExtra::add_header_above(c(" " = 2, "Pre-BRT" = 4, "Post-BRT" = 4)) |>
+  kableExtra::row_spec(0, bold = TRUE, font_size = 12) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+# Gráficos ----
 
 base_g0 <- base |> 
   filter(!is.na(ocupado)) |> 

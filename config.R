@@ -13,6 +13,7 @@ library(srvyr)
 library(mapview)   
 library(ggmap)     
 library(sf) 
+library(sidrar)
 library(fastDummies)
 
 options(scipen = 999)

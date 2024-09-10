@@ -54,6 +54,7 @@ dados_ped <- ped |>
     )
   ) |> 
   select(
+    aamm,
     ano, mes, # Ano e Mês
     conglom = conglom, # Conglomerado
     domic = domic, # Domicílio
@@ -133,6 +134,7 @@ dados_nova_ped <- nova_ped |>
     )
   ) |> 
   select(
+    aamm,
     ano, mes, # Ano e Mês
     conglom, # Conglomerado
     domic, # Domicílio
