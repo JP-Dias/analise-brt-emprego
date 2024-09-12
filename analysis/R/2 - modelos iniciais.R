@@ -12,29 +12,34 @@ data <- base |>
          setor = CODSETOR2000,
          intervencao, trat15 = grupo_15, trat20 = grupo_20,trat30 = grupo_30,
          ano,mes,ra = NM_SUBDIST, mora_mesma_ra,escol_sup_com,
-         idade, escol_sup_com, fem, pessoas)
+         idade, escol_sup_com, fem, pessoas, peso)
 
-iplot(feols(ocupado ~ i(ano,trat20,2014)  | ano  + setor, data))
+iplot(feols(ocupado ~ i(ano,trat20,2014)  | ano + setor, data = data))
+
 
 iplot(feols(informal ~ i(ano,trat20,2014) | ano  + setor, data))
 
 iplot(feols(ln_horas_trab ~ i(ano,trat20,2014) | ano  + setor, data))
 
 iplot(feols(ln_rend_bruto ~ i(ano,trat20,2014) | ano  + setor, data))
+iplot(feols(ln_rend_bruto ~ i(ano,trat20,2014) | ano  + setor, data))
 
 
-data <- base |> 
+base <- base |> 
   filter(!is.na(ocupado),!is.na(escol_sup_com)) |> 
-  select(ocupado,informal,ln_rend_bruto,ln_horas_trab,
-         setor = CODSETOR2000,
-         intervencao, trat20 = grupo_20,trat30 = grupo_30,
-         ano,mes,ra = NM_SUBDIST, mora_mesma_ra,escol_sup_com,
-         idade, escol_sup_com, fem, pessoas)
+  rename(setor = CODSETOR2000,
+         trat20 = grupo_20,trat30 = grupo_30,
+         ra = NM_SUBDIST)
 
-modelo <- plm(formula = ocupado ~ intervencao + trat20 + (trat20 * intervencao) + escol_sup_com + idade + fem,
+
+
+modelo <- plm(formula = ocupado ~ intervencao + trat20 + 
+                (trat20 * ano_2009) + (trat20 * ano_2010) + (trat20 * ano_2011) + (trat20 * ano_2012) +
+                (trat20 * ano_2013) + (trat20 * ano_2014) + (trat20 * ano_2015) + (trat20 * ano_2016) +
+                (trat20 * ano_2016) + (trat20 * ano_2018) + (trat20 * ano_2019),
               model = "within",
               index = c("setor","ano"),
-              data = data) 
+              data = base) 
 
 stargazer(modelo,type = "text")
 
