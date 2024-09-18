@@ -74,7 +74,7 @@ deflator <- rbind(
   get_sidra(api = "/t/1100/n6/5300108/v/44/p/all/c315/7169/d/v44%202"), # De 2012 até 2019
   get_sidra(api = "/t/7063/n6/5300108/v/44/p/all/c315/7169/d/v44%202")) |> # De 2020 em diante
   dplyr::select(aamm = "Mês (Código)", inpc = "Valor") |> 
-  mutate(aamm1=as.yearmon(as.character(aamm), "%Y%m"),
+  mutate(aamm1=zoo::as.yearmon(as.character(aamm), "%Y%m"),
          inpc = inpc / 100)|>
   group_by(aamm1)|>  #faz com que cada operação seja feita dentro de cada 'grupo' 
   summarise(inpc_mensal = prod(1 + inpc)) |>
@@ -83,7 +83,7 @@ deflator <- rbind(
   dplyr::select(aamm1,deflator)
 
 base <- base |> 
-  mutate(aamm1=as.yearmon(as.character(aamm), "%Y%m")) |> 
+  mutate(aamm1=zoo::as.yearmon(as.character(aamm), "%Y%m")) |> 
   left_join(deflator) |> 
   mutate(intervencao = ifelse(ano < 2014,0,1),
          ano = as.character(ano),
