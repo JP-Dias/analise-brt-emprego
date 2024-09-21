@@ -1,5 +1,0 @@
-# Como reproduzir o projeto
-
-O projeto R está organizado em duas pastas principais: a pasta build e a pasta analysis. A pasta build contém os scripts e os dados para construir a base a ser analisada. A pasta analysis reúne todos os resultados, tabelas, gráficos e mapas do projeto.
-
-## Como produzir a base para análises

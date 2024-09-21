@@ -3,7 +3,7 @@
 ##### Table of Contents  
 [Abstract](#abstract)  
 [Metodo](#metodo)  
-  
+
 
 ## Abstract
 
@@ -19,3 +19,10 @@ Para criar a base utilizada nos modelos, os scrips em R contidos em build/R
 3 - cria bases correspondencia malhas: cria a relação entre os microdados e as informações da malha de 2010  
 4 - prepara malha: Prepara a malha do Censo de 2000 e prepara base para correspondência    
 5 - cria base analises: junta informações espaciais e cria grupos de tratamento e controle  
+
+# Como reproduzir o projeto
+
+O projeto R está organizado em duas pastas principais: a pasta build e a pasta analysis. A pasta build contém os scripts e os dados para construir a base a ser analisada. A pasta analysis reúne todos os resultados, tabelas, gráficos e mapas do projeto.
+
+## Como produzir a base para análises
+
