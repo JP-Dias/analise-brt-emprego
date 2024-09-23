@@ -59,5 +59,11 @@ join_ped_16_19_malha_2000 <- malha_2000_join |>
   na.omit() |> unique() 
 
 
-mapview(join_ped_09_16_malha_2000, zcol = "NM_SUBDIST", alpha.regions = 0.2)
-  
+bairros <- read_sf(build("Shapes/setor/setor.shp"))
+
+setor <- join_ped_09_16_malha_2000 |> select(CODSETOR2000,geometry) |> unique()
+
+
+mapview(bairros) + mapview(setor, col.regions = NA, alpha.regions = 0)
+
+
