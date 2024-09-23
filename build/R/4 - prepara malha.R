@@ -2,6 +2,7 @@
 #'*A malha de 2000 tem um problema de projeção, então o script também resolve isso*
 
 # Setores PED 2010 ---
+source("config.R")
 source(build("R/3 - cria bases correspondencia de malhas.R"))
 
 # Base de compatibilização de malhas
@@ -56,4 +57,7 @@ join_ped_16_19_malha_2000 <- malha_2000_join |>
   select(CODSETOR2000,CODSETOR2010,NM_SUBDIST,ano, mes, domic) |> 
   filter(NM_SUBDIST %in% c("GAMA", "SANTA MARIA")) |> 
   na.omit() |> unique() 
-# mapview(join_ped_09_16_malha_2000, col.regions = "blue" ,col = "blue",alpha.regions = 00.1) + mapview(join_ped_16_19_malha_2000, col.regions = "red" ,col = "red",alpha.regions = 00.1)
+
+
+mapview(join_ped_09_16_malha_2000, zcol = "NM_SUBDIST", alpha.regions = 0.2)
+  
