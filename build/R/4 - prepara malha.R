@@ -59,11 +59,67 @@ join_ped_16_19_malha_2000 <- malha_2000_join |>
   na.omit() |> unique() 
 
 
-bairros <- read_sf(build("Shapes/setor/setor.shp"))
+bairros <- read_sf(build("Shapes/setor/setor.shp")) |> 
+  filter(gdb_archiv %in% c(22, 95, 117, 129, 135, 152,
+                           176, 185, 187,191, 194, 200,
+                           205,260, 283, 290))
 
-setor <- join_ped_09_16_malha_2000 |> select(CODSETOR2000,geometry) |> unique()
+mapview(bairros)
 
+setor0916 <- join_ped_09_16_malha_2000 |> select(CODSETOR2000,geometry) |> unique()
+setor1619 <- join_ped_16_19_malha_2000 |> select(CODSETOR2000,geometry) |> unique()
 
-mapview(bairros) + mapview(setor, col.regions = NA, alpha.regions = 0)
+setor0916 <- setor0916 |> 
+  mutate(bairro = case_when(
+    CODSETOR2000 == 530010805070062 ~ "Setor Norte",
+    CODSETOR2000 == 530010805070052 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070043 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070032 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070035 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070036 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070027 ~ "Setor Oeste",
+    #
+    CODSETOR2000 == 530010805070111 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070112 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070118 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070121 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070123 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070124 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070126 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070132 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070133 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070137 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070139 ~ "Setor Sul",
+    #
+    CODSETOR2000 == 530010805070069 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070074 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070070 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070072 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070076 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070077 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070078 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070084 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070082 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070081 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070086 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070088 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070090 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070091 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070092 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070093 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070094 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070095 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070097 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070099 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070099 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070108 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070109 ~ "Setor Leste",
+    TRUE ~ "Não acabei"
+  ))
+
+mapview(setor0916,zcol = "bairro", alpha.regions = 0.5)
+
+mapview(bairros) + 
+  mapview(setor0916, z.col = , alpha.regions = 0.5)
 
 
