@@ -156,17 +156,78 @@ setor0916 <- setor0916 |>
 
 setor1619 <- setor1619 |> 
   mutate(bairro = case_when(
+    # GAMA ---
     CODSETOR2000 == 530010805070066 ~ "Setor Norte",
+    #
+    CODSETOR2000 == 530010805070051 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070054 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070056 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070041 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070042 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070046 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070038 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070036 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070028 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070029 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070031 ~ "Setor Oeste",
+    #
+    CODSETOR2000 == 530010805070137 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070136 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070128 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070114 ~ "Setor Sul",
     #
     CODSETOR2000 == 530010805070074 ~ "Setor Leste", 
     CODSETOR2000 == 530010805070093 ~ "Setor Leste", 
     CODSETOR2000 == 530010805070086 ~ "Setor Leste", 
     CODSETOR2000 == 530010805070088 ~ "Setor Leste", 
-    CODSETOR2000 == 530010805070097 ~ "Setor Leste", 
+    CODSETOR2000 == 530010805070097 ~ "Setor Leste",
+    #
+    CODSETOR2000 == 530010805070020 ~ "Setor Central",
+    CODSETOR2000 == 530010805070022 ~ "Setor Central",
+    CODSETOR2000 == 530010805070023 ~ "Setor Central",
+    CODSETOR2000 == 530010805070016 ~ "Setor Central",
+    CODSETOR2000 == 530010805070005 ~ "Setor Central",
+    CODSETOR2000 == 530010805070003 ~ "Setor Central",
+    CODSETOR2000 == 530010805070010 ~ "Setor Central",
+    CODSETOR2000 == 530010805070012 ~ "Setor Central",
+    # SANTA MARIA ---
+    CODSETOR2000 == 530010805250002 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250003 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250010 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250012 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250016 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250017 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250020 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250022 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250024 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250026 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250030 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250036 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250046 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250113 ~ "Santa Maria Sul",
+    #
+    CODSETOR2000 == 530010805250055 ~ "Santa Maria Centro",
+    CODSETOR2000 == 530010805250058 ~ "Santa Maria Centro",
+    #
+    CODSETOR2000 == 530010805250065 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250073 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250074 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250079 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250080 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250085 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250089 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250092 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250099 ~ "Santa Maria Norte",
+    #
+    CODSETOR2000 == 530010805250106 ~ "Santos Dummont",
+    CODSETOR2000 == 530010805250105 ~ "Santos Dummont",
+    CODSETOR2000 == 530010805250102 ~ "Santos Dummont",
   ))
 
+mapview(setor1619)
 
-mapview(setor0916,zcol = "bairro", alpha.regions = 0.5)
+mapview(setor0916,zcol = "bairro", alpha.regions = 0.5) +
+mapview(setor1619 |> filter(CODSETOR2000 != 530010805250113),zcol = "bairro", alpha.regions = 0.5)
 
 mapview(bairros,zcol = "se_setor",alpha.regions = 0.1) + 
   mapview(setor1619)
