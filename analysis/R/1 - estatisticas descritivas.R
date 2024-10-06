@@ -18,14 +18,10 @@ tab1 <- base |>
     Ocupados_SD = sd(ocupado, na.rm = TRUE),
     Informais_Mean = mean(informal, na.rm = TRUE),
     Informais_SD = sd(informal, na.rm = TRUE),
-    Servicos_Mean = mean(setor_atv_servic, na.rm = TRUE),
-    Servicos_SD = sd(setor_atv_servic, na.rm = TRUE),
-    Rendimento_Mean = mean(rend_liquido, na.rm = TRUE),
-    Rendimento_SD = sd(rend_liquido, na.rm = TRUE),
+    Rendimento_Mean = mean(rend_bruto, na.rm = TRUE),
+    Rendimento_SD = sd(rend_bruto, na.rm = TRUE),
     Horas_Mean = mean(horas_trab, na.rm = TRUE),
     Horas_SD = sd(horas_trab, na.rm = TRUE),
-    Rendimento_Mean = mean(rend_liquido, na.rm = TRUE),
-    Rendimento_SD = sd(rend_liquido, na.rm = TRUE),
     Moradores_Mean = mean(pessoas, na.rm = TRUE),
     Moradores_SD = sd(pessoas, na.rm = TRUE)
   ) |>
@@ -49,8 +45,6 @@ base_g0 <- base |>
   mutate(grupo = ifelse(grupo_20 == 1,"Treated","Control")) |> 
   group_by(ano,grupo) |>
   summarise(n = n()) 
-
-print(base_g0,n = Inf)
 
 g0 <- base_g0 |> 
   ggplot(aes(x = ano, y = n,col = grupo, group = grupo)) +
@@ -108,7 +102,7 @@ base_g3 <- base |>
   filter(!is.na(ocupado)) |> 
   mutate(grupo = ifelse(grupo_20 == 1,"Treated","Control")) |> 
   group_by(ano,grupo) |>
-  summarise(media = mean(escol_sup_com, na.rm = TRUE)) 
+  summarise(media = mean(en_sup, na.rm = TRUE)) 
 
 g3 <- base_g3 |> 
   ggplot(aes(x = ano, y = media,col = grupo, group = grupo)) +
@@ -121,24 +115,6 @@ g3 <- base_g3 |>
 
 g3
 
-# Ensino Médio
-
-base_g4 <- base |> 
-  filter(!is.na(ocupado)) |> 
-  mutate(grupo = ifelse(grupo_20 == 1,"Treated","Control")) |> 
-  group_by(ano,grupo) |>
-  summarise(media = mean(escol_med_com, na.rm = TRUE)) 
-
-g4 <- base_g3 |> 
-  ggplot(aes(x = ano, y = media,col = grupo, group = grupo)) +
-  geom_line(lwd = 1) + 
-  scale_color_manual(values = c("grey10","grey")) +
-  # annotate("rect", xmin = "2013.8", xmax = "2014.8", ymin = -Inf, ymax = Inf, 
-  #          alpha = 0.2, fill = "grey50") + 
-  geom_vline(xintercept = "2014", linetype = "dashed", color = "black", alpha = .9) +
-  theme_linedraw() + ggtitle("Percentual de Médio Completo")
-
-g4
 
 # Rendimento ----
 
@@ -159,23 +135,6 @@ g5 <- base_g5 |>
 
 g5
 
-
-base_g6 <- base |> 
-  filter(!is.na(ocupado)) |> 
-  mutate(grupo = ifelse(grupo_20 == 1,"Treated","Control")) |> 
-  group_by(ano,grupo) |>
-  summarise(media = mean(rend_liquido, na.rm = TRUE)) 
-
-g6 <- base_g5 |> 
-  ggplot(aes(x = ano, y = media,col = grupo, group = grupo)) +
-  geom_line(lwd = 1) + 
-  scale_color_manual(values = c("grey10","grey")) +
-  # annotate("rect", xmin = "2013.8", xmax = "2014.8", ymin = -Inf, ymax = Inf, 
-  #          alpha = 0.2, fill = "grey50") + 
-  geom_vline(xintercept = "2014", linetype = "dashed", color = "black", alpha = .9) +
-  theme_linedraw() + ggtitle("Rendimento Líquido Médio")
-
-g6
 
 # Horas ----
 

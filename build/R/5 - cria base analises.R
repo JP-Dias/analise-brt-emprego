@@ -87,20 +87,22 @@ base <- base |>
   left_join(deflator) |> 
   mutate(intervencao = ifelse(ano < 2014,0,1),
          ano = as.character(ano),
-         horas_trab = ifelse(is.na(horas_trab),0,horas_trab),
+         #horas_trab = ifelse(is.na(horas_trab),0,horas_trab),
          rend_liquido = ifelse(rend_liquido == -0.01,0,rend_liquido/deflator),
-         rend_bruto = ifelse(rend_bruto == -0.01,0,rend_bruto/deflator),
-         ln_rend_bruto = ifelse(!is.na(rend_bruto),log(rend_bruto/deflator),0),
+         rend_bruto = ifelse(rend_bruto == -0.01,NA,rend_bruto/deflator),
+         ln_rend_bruto = ifelse(!is.na(rend_bruto),log(rend_bruto/deflator),NA),
          ln_rend_liquido = ifelse((!is.na(rend_liquido) & rend_liquido != 0) ,log(rend_liquido/deflator),0),
-         ln_horas_trab = ifelse((is.na(horas_trab)|horas_trab == 0),0,log(horas_trab)),
-         en_sup = ifelse(escol == "sup_com",1,0 ),
+         ln_horas_trab = ifelse(horas_trab == 0,0,log(horas_trab)),
+         en_sup = ifelse(escol == "sup_com",1,0),
          negro = ifelse(cor %in% c("preta","parda"),1,0),
-         idade2 = sqrt(idade)
+         idade2 = sqrt(idade),
+         setor = CODSETOR2000
          ) |> 
-  select(ano,mes,bairro,grupo_15,grupo_20,grupo_25,grupo_30,intervencao,
-         ocupado,informal,trab_plano,
+  select(aamm,ano,mes,bairro,setor,
+         grupo_15,grupo_20,grupo_25,grupo_30,
+         intervencao,ocupado,informal,trab_plano,
          horas_trab,ln_horas_trab,rend_bruto,ln_rend_bruto,
-         idade,idade2,fem,negro,mora_mesma_ra,pessoas)
+         en_sup,idade,idade2,fem,negro,mora_mesma_ra,pessoas)
   
 # Cria Dummies
 #base <- dummy_cols(base)
