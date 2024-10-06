@@ -5,6 +5,11 @@
 source("config.R")
 source(build("R/3 - cria bases correspondencia de malhas.R"))
 
+# bairros <- read_sf(build("Shapes/setor/setor.shp")) |> 
+#   filter(gdb_archiv %in% c(22, 95, 117, 129, 135, 152,
+#                            176, 185, 187,191, 194, 200,
+#                            205,260, 283, 290))
+
 # Base de compatibilização de malhas
 relacao_malhas <- read_sav(build("relacao/malhas2000e2010/Compatibiliza DF FINAL.sav"))
 
@@ -50,21 +55,165 @@ join_ped_09_16_malha_2000 <- malha_2000_join |>
   full_join(setores_ped_09_16) |> 
   select(CODSETOR2000,CODSETOR2010,NM_SUBDIST,conglom, ano, mes, domic) |> 
   mutate(conglom = as.double(conglom)) |> 
-  na.omit() |> unique() 
+  na.omit() |> unique() |> 
+  mutate(bairro = case_when(
+    # GAMA ---
+    CODSETOR2000 == 530010805070062 ~ "Setor Norte",
+    #
+    CODSETOR2000 == 530010805070052 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070043 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070032 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070035 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070036 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070027 ~ "Setor Oeste",
+    #
+    CODSETOR2000 == 530010805070111 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070112 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070118 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070121 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070123 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070124 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070126 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070132 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070133 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070137 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070139 ~ "Setor Sul",
+    #
+    CODSETOR2000 == 530010805070069 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070074 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070070 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070072 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070076 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070077 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070078 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070084 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070082 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070081 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070086 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070088 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070090 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070091 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070092 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070093 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070094 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070095 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070097 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070099 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070099 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070108 ~ "Setor Leste",
+    CODSETOR2000 == 530010805070109 ~ "Setor Leste",
+    # SANTA MARIA ---
+    CODSETOR2000 == 530010805250001 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250003 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250005 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250006 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250007 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250008 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250011 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250016 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250019 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250020 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250021 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250022 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250024 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250025 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250026 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250033 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250034 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250035 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250039 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250043 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250044 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250045 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250046 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250049 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250050 ~ "Santa Maria Sul",
+    #
+    CODSETOR2000 == 530010805250055 ~ "Santa Maria Centro",
+    CODSETOR2000 == 530010805250056 ~ "Santa Maria Centro",
+    #
+    CODSETOR2000 == 530010805250085 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250093 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250094 ~ "Santa Maria Norte",
+    #
+    CODSETOR2000 == 530010805250107 ~ "Santos Dummont",
+    TRUE ~ "Não acabei"
+  ))
   
 join_ped_16_19_malha_2000 <- malha_2000_join |> 
   full_join(setores_ped_16_19) |>
   select(CODSETOR2000,CODSETOR2010,NM_SUBDIST,ano, mes, domic) |> 
   filter(NM_SUBDIST %in% c("GAMA", "SANTA MARIA")) |> 
-  na.omit() |> unique() 
-
-
-bairros <- read_sf(build("Shapes/setor/setor.shp")) |> 
-  filter(gdb_archiv %in% c(22, 95, 117, 129, 135, 152,
-                           176, 185, 187,191, 194, 200,
-                           205,260, 283, 290))
-
-mapview(bairros)
+  na.omit() |> unique() |> 
+  mutate(bairro = case_when(
+    # GAMA ---
+    CODSETOR2000 == 530010805070066 ~ "Setor Norte",
+    #
+    CODSETOR2000 == 530010805070051 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070054 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070056 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070041 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070042 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070046 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070038 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070036 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070028 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070029 ~ "Setor Oeste",
+    CODSETOR2000 == 530010805070031 ~ "Setor Oeste",
+    #
+    CODSETOR2000 == 530010805070137 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070136 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070128 ~ "Setor Sul",
+    CODSETOR2000 == 530010805070114 ~ "Setor Sul",
+    #
+    CODSETOR2000 == 530010805070074 ~ "Setor Leste", 
+    CODSETOR2000 == 530010805070093 ~ "Setor Leste", 
+    CODSETOR2000 == 530010805070086 ~ "Setor Leste", 
+    CODSETOR2000 == 530010805070088 ~ "Setor Leste", 
+    CODSETOR2000 == 530010805070097 ~ "Setor Leste",
+    #
+    CODSETOR2000 == 530010805070020 ~ "Setor Central",
+    CODSETOR2000 == 530010805070022 ~ "Setor Central",
+    CODSETOR2000 == 530010805070023 ~ "Setor Central",
+    CODSETOR2000 == 530010805070016 ~ "Setor Central",
+    CODSETOR2000 == 530010805070005 ~ "Setor Central",
+    CODSETOR2000 == 530010805070003 ~ "Setor Central",
+    CODSETOR2000 == 530010805070010 ~ "Setor Central",
+    CODSETOR2000 == 530010805070012 ~ "Setor Central",
+    # SANTA MARIA ---
+    CODSETOR2000 == 530010805250002 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250003 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250010 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250012 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250016 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250017 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250020 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250022 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250024 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250026 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250030 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250036 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250046 ~ "Santa Maria Sul",
+    CODSETOR2000 == 530010805250113 ~ "Santa Maria Sul",
+    #
+    CODSETOR2000 == 530010805250055 ~ "Santa Maria Centro",
+    CODSETOR2000 == 530010805250058 ~ "Santa Maria Centro",
+    #
+    CODSETOR2000 == 530010805250065 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250073 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250074 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250079 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250080 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250085 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250089 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250092 ~ "Santa Maria Norte",
+    CODSETOR2000 == 530010805250099 ~ "Santa Maria Norte",
+    #
+    CODSETOR2000 == 530010805250106 ~ "Santos Dummont",
+    CODSETOR2000 == 530010805250105 ~ "Santos Dummont",
+    CODSETOR2000 == 530010805250102 ~ "Santos Dummont",
+  ))
+  
 
 setor0916 <- join_ped_09_16_malha_2000 |> select(CODSETOR2000,geometry) |> unique()
 setor1619 <- join_ped_16_19_malha_2000 |> select(CODSETOR2000,geometry) |> unique()
@@ -224,12 +373,23 @@ setor1619 <- setor1619 |>
     CODSETOR2000 == 530010805250102 ~ "Santos Dummont",
   ))
 
-mapview(setor1619)
+setores_2009_2016 <- setor0916
+setores_2016_2019 <- setor1619 |> filter(CODSETOR2000 != 530010805250113)
 
-mapview(setor0916,zcol = "bairro", alpha.regions = 0.5) +
-mapview(setor1619 |> filter(CODSETOR2000 != 530010805250113),zcol = "bairro", alpha.regions = 0.5)
+# Cria as visualizações individuais com `mapview`
+mapa_2009_2016 <- mapview(setores_2009_2016, zcol = "bairro", alpha.regions = 0.5, color = "darkblue", legend = FALSE)
+mapa_2016_2019 <- mapview(setores_2016_2019, zcol = "bairro", alpha.regions = 0.5, color = "darkred", legend = FALSE)
 
-mapview(bairros,zcol = "se_setor",alpha.regions = 0.1) + 
-  mapview(setor1619)
+mapas <- mapa_2009_2016 + mapa_2016_2019
 
+mapas <- mapas@map
 
+mapas <- mapas |> 
+  addLegend("topright",
+            colors = c("blue", "red"),
+            labels = c("Setores 2009-2016", "Setores 2016-2019"),
+            title = "Origem dos Setores",
+            opacity = 1)
+
+# Exibe o mapa com a legenda
+leaflet_map
