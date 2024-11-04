@@ -3,6 +3,7 @@ library(tidyverse)
 library(plm)
 library(fixest)
 library(stargazer)
+library(modelsummary)
 
 dados <- readRDS("analysis/dados/base.RDS")
 
@@ -67,20 +68,73 @@ modelsummary(list(
 output = "default", stars = TRUE)
 
 
-#### Event-Study TWFE ####
-
-reg2 <- feols(trab_plano ~ i(ano, grupo_20, 2013)| setor + ano, 
+# Event-Study TWFE ----
+## Ocupado ----
+reg_ocupado_setor <- feols(ocupado ~ i(ano, grupo_20, 2013)| setor + ano, 
               data=dados)
-summary(reg2, se="twoway")
+summary(reg_ocupado_setor, se="twoway")
 
-iplot(reg2, se="twoway")
+iplot(reg_ocupado_setor,col = "darkred", se="twoway", main="Efeito sobre Ocupado (EF Setor)")
 
-
-reg2 <- feols(rend_bruto ~ i(ano, grupo_20, 2013)| CODSETOR2000 + ano, 
+reg_ocupado_bairro <- feols(ocupado ~ i(ano, grupo_20, 2013)| bairro + ano, 
               data=dados)
-summary(reg2, se="twoway")
+summary(reg_ocupado_bairro, se="twoway")
 
-iplot(reg2, se="twoway",col = "darkblue", sub = "Efeitos fixos setor e ano")
+iplot(reg_ocupado_bairro,col = "darkblue", se="twoway",main = "Efeito sobre Ocupado (EF Bairro)")
+
+## Informal ----
+reg_informal_setor <- feols(informal ~ i(ano, grupo_20, 2013)| setor + ano, 
+                            data=dados)
+summary(reg_informal_setor, se="twoway")
+
+iplot(reg_informal_setor,col = "darkred", se="twoway", main="Efeito sobre informal (EF Setor)")
+
+reg_informal_bairro <- feols(informal ~ i(ano, grupo_20, 2013)| bairro + ano, 
+                             data=dados)
+summary(reg_informal_bairro, se="twoway")
+
+iplot(reg_informal_bairro,col = "darkblue", se="twoway",main = "Efeito sobre informal (EF Bairro)")
+
+## Rendimento ----
+reg_ln_rend_bruto_setor <- feols(ln_rend_bruto ~ i(ano, grupo_20, 2013)| setor + ano, 
+                           data=dados)
+summary(reg_ln_rend_bruto_setor, se="twoway")
+
+iplot(reg_ln_rend_bruto_setor,col = "darkred", se="twoway", main="Efeito sobre ln_rend_bruto (EF Setor)")
+
+reg_ln_rend_bruto_bairro <- feols(ln_rend_bruto ~ i(ano, grupo_20, 2013)| bairro + ano, 
+                            data=dados)
+summary(reg_ln_rend_bruto_bairro, se="twoway")
+
+iplot(reg_ln_rend_bruto_bairro,col = "darkblue", se="twoway",main = "Efeito sobre ln_rend_bruto (EF Bairro)")
+
+## Horas Trabalhadas ----
+reg_ln_horas_trab_setor <- feols(ln_horas_trab ~ i(ano, grupo_20, 2013)| setor + ano, 
+                                 data=dados)
+summary(reg_ln_horas_trab_setor, se="twoway")
+
+iplot(reg_ln_horas_trab_setor,col = "darkred", se="twoway", main="Efeito sobre ln_horas_trab (EF Setor)")
+
+reg_ln_horas_trab_bairro <- feols(ln_horas_trab ~ i(ano, grupo_20, 2013)| bairro + ano, 
+                                  data=dados)
+summary(reg_ln_horas_trab_bairro, se="twoway")
+
+iplot(reg_ln_horas_trab_bairro,col = "darkblue", se="twoway",main = "Efeito sobre ln_horas_trab (EF Bairro)")
+
+
+
+
+
+
+
+
+
+
+# reg2 <- feols(rend_bruto ~ i(ano, grupo_20, 2013)| CODSETOR2000 + ano, 
+#               data=dados)
+# summary(reg2, se="twoway")
+# 
+# iplot(reg2, se="twoway",col = "darkblue", sub = "Efeitos fixos setor e ano")
 
 # summary(reg1, se="twoway")
 # summary(reg1)

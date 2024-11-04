@@ -38,6 +38,8 @@ tabela <- cbind(tab1 |> filter(periodo == "Pre-BRT") |> select(-periodo),
   kableExtra::row_spec(0, bold = TRUE, font_size = 12) |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
+tabela
+
 # Gráficos ----
 
 base_g0 <- base |> 
