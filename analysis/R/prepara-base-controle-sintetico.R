@@ -6,8 +6,36 @@ source("config.R")
 # Lê bases ----
 ## PED ----
 ped <- readRDS(build("Rds/ped_empilhada.RDS"))
-malha_2010 <- st_read(build("Shapes/2010/53SEE250GC_SIR.shp"), options = "ENCODING=WINDOWS-1252")
 
+## Censo 2010 ----
+censo10 <- read_excel(build("Dados/censo2010/censo2010.xls"))
+
+# População por Subdistrito
+pop_ra_2010 <- censo10 |> 
+  select(reg = Nome_do_subdistrito, V014) |> 
+  mutate(V014 = as.numeric(ifelse(V014 == "X",0,V014)),
+         reg = ifelse(reg == "BRASÍLIA","Plano Piloto",str_to_title(reg))) |>
+  group_by(reg) |> 
+  summarise(pop_2010 = sum(V014))
+
+## Shapes----
+malha_2010 <- st_read(build("Shapes/2010/53SEE250GC_SIR.shp"), options = "ENCODING=WINDOWS-1252")
+shape_35_ras <- st_read(build("Shapes/regioes_administrativas/regioes_administrativas.shp"))
+
+# Cria malha de Subdistritos para mapas
+malha_subdist<- malha_2010  |> 
+  mutate(reg = ifelse(NM_SUBDIST == "BRASÍLIA","Plano Piloto",str_to_title(NM_SUBDIST))) |>
+  st_make_valid() |> 
+  group_by(reg) |> 
+  summarise(geometry = st_union(geometry),
+            area = as.numeric(st_area(geometry)/1e6))
+
+densidade_2010 <- malha_subdist |> 
+  st_drop_geometry() |> 
+  left_join(pop_ra_2010) |> 
+  mutate(densidade_2010 = pop_2010/area)
+
+# Deflator ----
 deflator <- rbind(
   get_sidra(api = "/t/2951/n6/5300108/v/44/p/all/c315/7169/d/v44%202"), # De 2006 até 2011
   get_sidra(api = "/t/1100/n6/5300108/v/44/p/all/c315/7169/d/v44%202"), # De 2012 até 2019
@@ -21,21 +49,10 @@ deflator <- rbind(
          deflator = inpc_acumulado / last(inpc_acumulado)) |>   # Perído base: Jan/2023 
   dplyr::select(aamm1,deflator)
 
+# Adiciona deflator na base
 ped <- ped |> 
   mutate(aamm1=zoo::as.yearmon(as.character(aamm), "%Y%m")) |> 
   left_join(deflator)
-
-
-#mapview(malha_2010,zcol = "NM_SUBDIST",color = "white")
-
-malha_subdist <- malha_2010  |> 
-  mutate(reg = ifelse(NM_SUBDIST == "BRASÍLIA","Plano Piloto",str_to_title(NM_SUBDIST))) |>
-  st_make_valid() |> 
-  group_by(reg) |> 
-  summarise(geometry = st_union(geometry),
-            area = st_area(geometry))
-
-#mapview(malha_subdist)
 
 ## Seleção e renomeação das variáveis ----
 
@@ -117,89 +134,107 @@ base <- ped |>
 #prop.table(table(base$reg,base$mora_trabalha),1)*100
 
 base <- base |> as_survey(weights = fator_ano)  
-  
 
+# Percentual de Analfabetos maiores de 18
 perc_analf <- base |> 
-  filter(ano == 2009, idade > 18) |> 
-  group_by(reg) |> 
+  filter(idade > 18) |> 
+  group_by(ano,reg) |> 
   summarise(perc_analf = survey_mean(analf,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, perc_analf) |> mapview(zcol = "perc_analf")
-
-
+# Idade Média
 media_idade <- base |> 
-  filter(ano == 2009) |> 
-  group_by(reg) |> 
+  group_by(ano,reg) |> 
   summarise(media_idade = survey_mean(idade,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, media_idade) |> mapview(zcol = "media_idade")
-
-
+# Tamanho médio das famílias
 media_familia <- base |> 
-  filter(ano == 2009) |> 
   group_by(reg) |> 
   summarise(media_familia = survey_mean(tamanho,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, media_familia) |> mapview(zcol = "media_familia")
-
+# Percentual de Idosos
 perc_idoso <- base |> 
-  filter(ano == 2009) |> 
-  group_by(reg) |> 
+  group_by(ano,reg) |>  
   summarise(perc_idoso = survey_mean(idoso,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, perc_idoso) |> mapview(zcol = "perc_idoso")
-
+# Percentual de Informais
 perc_informal <- base |> 
-  filter(ano == 2009) |> 
-  group_by(reg) |> 
-  summarise(perc_informal = survey_mean(informal,na.rm = T, vartype = "cv"))  |> 
+  group_by(ano,reg) |> 
+  summarise(perc_informal = survey_mean(informal,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, perc_informal) |> mapview(zcol = "perc_informal")
-
+# Percentual que Trabalha no Plano Piloto
 perc_trab_plano <- base |> 
-  filter(ano == 2009) |> 
-  group_by(reg) |> 
+  group_by(ano,reg) |> 
   summarise(perc_trab_plano = survey_mean(trab_plano,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, perc_trab_plano) |> mapview(zcol = "perc_trab_plano")
-
+# Percentual que nasceu no DF
 perc_nasc_df <- base |> 
-  filter(ano == 2009) |> 
-  group_by(reg) |> 
+  group_by(ano,reg) |> 
   summarise(perc_nasc_df = survey_mean(nasc_df,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, perc_nasc_df) |> mapview(zcol = "perc_nasc_df")
-
+# Percentual que mora na região que trabalha
 perc_mora_trabalha <- base |> 
-  filter(ano == 2009) |> 
-  group_by(reg) |> 
+  group_by(ano,reg) |> 
   summarise(perc_mora_trabalha = survey_mean(mora_trabalha,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, perc_mora_trabalha) |> mapview(zcol = "perc_mora_trabalha")
-
+# Nº de Empregos da Região
 n_empregos <- base |> 
-  filter(ano == 2009,
-         local_trab %notin% c("Outro","Entorno")) |> 
+  filter(local_trab %notin% c("Outro","Entorno")) |> 
   mutate(reg = local_trab) |> 
-  group_by(reg) |> 
+  group_by(ano,reg) |> 
   summarise(n_empregos = survey_total(na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, n_empregos) |> mapview(zcol = "n_empregos")
-
+# Renda familiar média
 renda_fam_media <- base |> 
-  filter(ano == 2009,
-         rfam != -1000) |> 
-  group_by(reg) |> 
-  summarise(renda_fam_media = survey_mean(rfam,na.rm = T, vartype = "cv")) |> 
+  filter(rfam != -1000) |> 
+  group_by(ano,reg) |> 
+  summarise(renda_fam_media = survey_mean(rfam/deflator,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
-#left_join(malha_subdist, n_empregos) |> mapview(zcol = "n_empregos")
+# Renda Total
+renda_total <- base |> 
+  filter(rfam != -1000) |> 
+  group_by(ano,reg) |> 
+  summarise(renda_total = survey_total(rfam/deflator,na.rm = T, vartype = "cv")) |> 
+  na.omit()
+
+# Renda Per Capita 2010
+renda_pc_2010 <- renda_total |> 
+  filter(ano == 2010) |> 
+  select(reg,renda_total) |> 
+  left_join(pop_ra_2010) |> 
+  mutate(renda_pc_2010 = renda_total/pop_2010) |> 
+  ungroup() |> 
+  select(reg,renda_pc_2010)
+
+# Massa Salarial 
+massa_salarial <- base |> 
+  filter(rfam != -1000) |> 
+  group_by(ano,reg) |> 
+  summarise(massa_salarial = survey_total(rend_bruto/deflator,na.rm = T, vartype = "cv")) |> 
+  na.omit()
+
+dados_cs <- renda_fam_media |> 
+  left_join(perc_analf) |> 
+  left_join(media_idade) |> 
+  left_join(perc_idoso) |> 
+  left_join(media_familia) |> 
+  left_join(perc_informal) |> 
+  left_join(perc_nasc_df) |> 
+  left_join(perc_mora_trabalha) |> 
+  left_join(n_empregos) |> 
+  left_join(renda_fam_media) |> 
+  left_join(massa_salarial) |> 
+  left_join(renda_pc_2010) |> 
+  left_join(densidade_2010) |> 
+  select(-contains("_cv"))
+
+write.csv(dados_cs,analysis("dados/dados_controle_sintetico.csv"),fileEncoding = "latin1")
