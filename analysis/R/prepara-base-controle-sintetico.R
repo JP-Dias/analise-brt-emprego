@@ -237,4 +237,5 @@ dados_cs <- renda_fam_media |>
   left_join(densidade_2010) |> 
   select(-contains("_cv"))
 
-write.csv(dados_cs,analysis("dados/dados_controle_sintetico.csv"),fileEncoding = "latin1")
+write.csv(dados_cs,build("dados/dados_controle_sintetico.csv"),fileEncoding = "latin1")
+saveRDS(dados_cs,build("dados/dados_controle_sintetico.RDS"))

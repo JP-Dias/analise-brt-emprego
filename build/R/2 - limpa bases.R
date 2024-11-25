@@ -8,6 +8,7 @@ ped <- readRDS(build("Rds/ped_empilhada.RDS"))
 ## Seleção e renomeação das variáveis ----
 dados_ped <- ped |> 
   mutate(
+    fator = fator/12,
     fem = case_when(c010 == 1 ~ 0, c010 == 2 ~ 1,TRUE ~ NA_integer_),
     mora_mesma_ra = ifelse(c071 == 1, 1, 0),
     ocupado = case_when(
@@ -87,6 +88,7 @@ nova_ped <- readRDS(build("Rds/nova_ped_empilhada.RDS"))
 ## Seleção e renomeação das variáveis ----
 dados_nova_ped <- nova_ped |> 
   mutate(
+    fator = fator/12,
     fem = case_when(c030 == 1 ~ 0, c030 == 2 ~ 1,TRUE ~ NA_integer_),
     mora_mesma_ra = ifelse(((m041 == 1 | m05a >= 1) | (m010 == 1 | m02a >= 1)), 1, 0),  # Residia na mesma RA 12 meses atrás ou sempre morou na RA
     ocupado = case_when(
