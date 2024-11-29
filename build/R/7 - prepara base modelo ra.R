@@ -172,9 +172,11 @@ base <- base |>
          en_sup = ifelse(escol == "sup_com",1,0),
          negro = ifelse(cor %in% c("preta","parda"),1,0),
          idade2 = sqrt(idade)
-  ) |> 
-  left_join(dados_cs)
+  )
 
+
+saveRDS(base,analysis("dados/base_ra.RDS"))
+write.csv(base,analysis("dados/base_ra.csv"))
 
 
 
