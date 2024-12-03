@@ -29,3 +29,4 @@ iplot(feols(ln_rend_bruto ~ i(ano, grupo_20, 2013)| bairro + ano, data=dados), s
 iplot(feols(ln_horas_trab ~ i(ano, grupo_20, 2013)| bairro + ano, data=dados), se="twoway",col = "darkblue", sub = "Efeitos fixos bairro e ano")
 iplot(feols(trab_plano ~ i(ano, grupo_20, 2013)| bairro + ano, data=dados), se="twoway",col = "darkblue", sub = "Efeitos fixos bairro e ano")
 
+

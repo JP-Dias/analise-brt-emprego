@@ -1,0 +1,321 @@
+---
+title: "Resumo Estimativas"
+output: html_document
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+```{r carregamentos}
+
+# Pacotes
+
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+library(tidyr)
+library(kableExtra)
+library(plm)
+library(fixest)
+library(modelsummary)
+
+# Bases 
+base <- readRDS("../../analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Sobradinho"))
+
+base_gama <- base |> filter(reg %in% c("Gama","Recanto Das Emas")) |> 
+  mutate(grupo = ifelse(reg == "Gama",1,0))
+
+base_sm <- base |> filter(reg %in% c("Santa Maria","Sobradinho")) |> 
+  mutate(grupo = ifelse(reg == "Santa Maria",1,0))
+```
+
+# Exposição dos resultados dos modelos iniciais
+
+## Tabelas de Estatística descritiva
+
+### Gama
+
+```{r tabela gama}
+
+
+# base_gama Gama ----
+
+tab1_gama <- base_gama |>
+  mutate(grupo = ifelse(grupo == 1,"Treated","Control"),
+         periodo = ifelse(aamm < 201406, "Pre-BRT", "Post-BRT")) |>
+  group_by(grupo, periodo) |>
+  summarise(
+    Ocupados_Mean = mean(ocupado, na.rm = TRUE),
+    Ocupados_SD = sd(ocupado, na.rm = TRUE),
+    Informais_Mean = mean(informal, na.rm = TRUE),
+    Informais_SD = sd(informal, na.rm = TRUE),
+    Rendimento_Mean = mean(rend_bruto, na.rm = TRUE),
+    Rendimento_SD = sd(rend_bruto, na.rm = TRUE),
+    Horas_Mean = mean(horas_trab, na.rm = TRUE),
+    Horas_SD = sd(horas_trab, na.rm = TRUE),
+    Moradores_Mean = mean(pessoas, na.rm = TRUE),
+    Moradores_SD = sd(pessoas, na.rm = TRUE)
+  ) |>
+  pivot_longer(cols = Ocupados_Mean:Moradores_SD, names_to = "Variável", values_to = "Valor") |>
+  separate(Variável, into = c("Variável", "Métrica")) |> 
+  pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
+
+tabela_gama <- cbind(tab1_gama |> filter(periodo == "Pre-BRT") |> select(-periodo),
+                tab1_gama |> filter(periodo == "Post-BRT")|> select(-periodo)) |> 
+  kableExtra::kable(col.names = c("Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD", 
+                                  "Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD"),
+                    align = "lccccclcccc") |>
+  kableExtra::add_header_above(c(" " = 2, "Pre-BRT" = 4, "Post-BRT" = 4)) |>
+  kableExtra::row_spec(0, bold = TRUE, font_size = 12) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+tabela_gama
+
+```
+
+### Santa Maria
+
+```{r tabela sm}
+
+tab1_sm <- base_sm |>
+  mutate(grupo = ifelse(grupo == 1,"Treated","Control"),
+         periodo = ifelse(aamm < 201406, "Pre-BRT", "Post-BRT")) |>
+  group_by(grupo, periodo) |>
+  summarise(
+    Ocupados_Mean = mean(ocupado, na.rm = TRUE),
+    Ocupados_SD = sd(ocupado, na.rm = TRUE),
+    Informais_Mean = mean(informal, na.rm = TRUE),
+    Informais_SD = sd(informal, na.rm = TRUE),
+    Rendimento_Mean = mean(rend_bruto, na.rm = TRUE),
+    Rendimento_SD = sd(rend_bruto, na.rm = TRUE),
+    Horas_Mean = mean(horas_trab, na.rm = TRUE),
+    Horas_SD = sd(horas_trab, na.rm = TRUE),
+    Moradores_Mean = mean(pessoas, na.rm = TRUE),
+    Moradores_SD = sd(pessoas, na.rm = TRUE)
+  ) |>
+  pivot_longer(cols = Ocupados_Mean:Moradores_SD, names_to = "Variável", values_to = "Valor") |>
+  separate(Variável, into = c("Variável", "Métrica")) |> 
+  pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
+
+tabela_sm <- cbind(tab1_sm |> filter(periodo == "Pre-BRT") |> select(-periodo),
+                     tab1_sm |> filter(periodo == "Post-BRT")|> select(-periodo)) |> 
+  kableExtra::kable(col.names = c("Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD", 
+                                  "Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD"),
+                    align = "lccccclcccc") |>
+  kableExtra::add_header_above(c(" " = 2, "Pre-BRT" = 4, "Post-BRT" = 4)) |>
+  kableExtra::row_spec(0, bold = TRUE, font_size = 12) |>
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+tabela_sm
+
+```
+
+
+## Gráficos
+
+```{r graficos}
+
+# Função para criar os gráficos
+criar_grafico <- function(base, variavel, titulo, legend = FALSE) {
+  base |> 
+    filter(!is.na(ocupado)) |> 
+    mutate(grupo = ifelse(grupo == 1, "Treated", "Control")) |> 
+    group_by(ano, grupo) |>
+    summarise(media = mean({{ variavel }}, na.rm = TRUE), .groups = "drop") |> 
+    ggplot(aes(x = as.character(ano), y = media, col = grupo, group = grupo)) +
+    geom_line(lwd = 1, show.legend = legend) + 
+    scale_color_manual(values = c("grey10", "grey")) +
+    geom_vline(xintercept = "2014", linetype = "dashed", color = "black", alpha = .9) +
+    theme_linedraw() + theme(legend.position = "bottom")+
+    ggtitle(titulo)
+}
+
+# Criando gráficos de base_gama
+g0 <- criar_grafico(base_gama, ocupado, "Grupos", legend = TRUE)
+g1 <- criar_grafico(base_gama, ocupado, "Percentual de Ocupados")
+g2 <- criar_grafico(base_gama, informal, "Percentual de Informais")
+g3 <- criar_grafico(base_gama, en_sup, "Percentual de Superior Completo")
+g5 <- criar_grafico(base_gama, rend_bruto, "Rendimento Bruto Médio")
+g7 <- criar_grafico(base_gama, horas_trab, "Horas Trabalhadas")
+g8 <- criar_grafico(base_gama, trab_plano, "Trabalha no Plano Piloto")
+
+# Combinação de gráficos
+grafico_gama <- g0 / (g1 + g2) / (g3 + g5) / (g7 + g8)
+
+# Criando gráficos de base_sm
+sm_g0 <- criar_grafico(base_sm, ocupado, "Grupos", legend = TRUE)
+sm_g1 <- criar_grafico(base_sm, ocupado, "Percentual de Ocupados")
+sm_g2 <- criar_grafico(base_sm, informal, "Percentual de Informais")
+sm_g3 <- criar_grafico(base_sm, en_sup, "Percentual de Superior Completo")
+sm_g5 <- criar_grafico(base_sm, rend_bruto, "Rendimento Bruto Médio")
+sm_g7 <- criar_grafico(base_sm, horas_trab, "Horas Trabalhadas")
+sm_g8 <- criar_grafico(base_sm, trab_plano, "Trabalha no Plano Piloto")
+
+# Combinação de gráficos
+grafico_sm <- sm_g0 / (sm_g1 + sm_g2) / (sm_g3 + sm_g5) / (sm_g7 + sm_g8)
+
+
+
+```
+### Gama
+
+```{r graf gama,fig.dim=c(9,12)}
+grafico_gama # Gráficos do Gama
+
+```
+
+### Gama
+
+```{r graf sm,fig.dim=c(9,12)}
+grafico_sm # Gráficos de Santa Maria
+```
+
+
+
+### Estimativas para o Gama
+
+```{r estimativas gama }
+
+## Gama ----
+dados_gama <- base |> filter(reg %in% c("Gama","Recanto Das Emas")) |> 
+  mutate(grupo = ifelse(reg == "Gama",1,0),
+         Effect = grupo * intervencao) |> # Montar Variável de Interesse
+  filter(!is.na(ocupado)) 
+  
+
+
+# Estimativas ----
+## Gama ----
+
+### Estimativas Iniciais ----
+reg1 <- feols(ocupado ~ Effect | reg + ano , ~reg, data=dados_gama)
+reg2 <- feols(informal ~ Effect | reg + ano , ~reg, data=dados_gama)
+reg3 <- feols(ln_rend_bruto ~ Effect | reg + ano , ~reg, data=dados_gama)
+reg4 <- feols(ln_horas_trab ~ Effect | reg + ano , ~reg, data=dados_gama)
+
+modelsummary(list(
+  "Ocupado | Setor"=reg1,
+  "Informal | Setor"=reg2,
+  "Ln Renda | Setor"=reg3,
+  "Ln Horas | Setor"=reg4),
+output ="default",
+stars = T)
+
+### Estimativas com variáveis de controle ----
+
+reg1_ctrl <- feols(ocupado ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_gama)
+reg2_ctrl <- feols(informal ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_gama)
+reg3_ctrl <- feols(ln_rend_bruto ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_gama)
+reg4_ctrl <- feols(ln_horas_trab ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_gama)
+
+
+# Tabela de resumo 
+modelsummary(list(
+  "Ocupado | Setor (Ctrl)" = reg1_ctrl,
+  "Informal | Setor (Ctrl)" = reg2_ctrl,
+  "Ln Renda | Setor (Ctrl)" = reg3_ctrl,
+  "Ln Horas | Setor (Ctrl)" = reg4_ctrl), 
+output = "default", stars = TRUE)
+```
+
+### Estimativas para Santa Maria
+
+```{r estimativas sm}
+
+# Santa Maria ----
+dados_sm <- base |> filter(reg %in% c("Santa Maria","Sobradinho")) |>
+  mutate(grupo = ifelse(reg == "Santa Maria",1,0),
+         Effect = grupo * intervencao) |> # Montar Variável de Interesse
+  filter(!is.na(ocupado))
+
+
+## Santa Maria
+### Estimativas Iniciais ----
+
+reg1 <- feols(ocupado ~ Effect | reg + ano , ~reg, data=dados_sm)
+reg2 <- feols(informal ~ Effect | reg + ano , ~reg, data=dados_sm)
+reg3 <- feols(ln_rend_bruto ~ Effect | reg + ano , ~reg, data=dados_sm)
+reg4 <- feols(ln_horas_trab ~ Effect | reg + ano , ~reg, data=dados_sm)
+
+modelsummary(list(
+  "Ocupado | Setor"=reg1,
+  "Informal | Setor"=reg2,
+  "Ln Renda | Setor"=reg3,
+  "Ln Horas | Setor"=reg4),
+  output ="default",
+  stars = T)
+
+
+### Estimativas com variáveis de controle ----
+
+reg1_ctrl <- feols(ocupado ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_sm)
+reg2_ctrl <- feols(informal ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_sm)
+reg3_ctrl <- feols(ln_rend_bruto ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_sm)
+reg4_ctrl <- feols(ln_horas_trab ~ Effect + idade + idade2 + fem + negro + en_sup | reg + ano , ~reg, data=dados_sm)
+
+
+# Tabela de resumo 
+modelsummary(list(
+  "Ocupado | Setor (Ctrl)" = reg1_ctrl,
+  "Informal | Setor (Ctrl)" = reg2_ctrl,
+  "Ln Renda | Setor (Ctrl)" = reg3_ctrl,
+  "Ln Horas | Setor (Ctrl)" = reg4_ctrl), 
+  output = "default", stars = TRUE)
+
+```
+
+## Estudo de Evento
+
+### Gama
+
+```{r estudo gama}
+
+# Estudo de Evento ----
+
+## Gama ----
+# Efeito sobre Ocupação
+iplot(feols(ocupado ~ i(ano, grupo, 2013)| reg + ano, data=dados_gama), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Gama")
+
+# Efeito sobre Informal
+iplot(feols(informal ~ i(ano, grupo, 2013)| reg + ano, data=dados_gama), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Gama")
+
+# Efeito sobre Ln Rendimento Real Bruto
+iplot(feols(ln_rend_bruto ~ i(ano, grupo, 2013)| reg + ano, data=dados_gama), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Gama")
+
+# Efeito sobre Ln Horas trabalhadas
+iplot(feols(ln_horas_trab ~ i(ano, grupo, 2013)| reg + ano, data=dados_gama), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Gama")
+
+# Efeito sobre Trabalha no Plano
+iplot(feols(trab_plano ~ i(ano, grupo, 2013)| reg + ano, data=dados_gama), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Gama")
+
+
+```
+
+### Santa Maria
+
+```{r estudo sm}
+
+# Estudo de Evento ----
+
+## Santa Maria ----
+
+# Efeito sobre Ocupação
+iplot(feols(ocupado ~ i(ano, grupo, 2013) | reg + ano, data=dados_sm), se="twoway",ci_level = .95,col = "darkblue", sub = "Efeitos fixos reg e ano | Santa Maria")
+
+# Efeito sobre Informal
+iplot(feols(informal ~ i(ano, grupo, 2013)| reg + ano, data=dados_sm), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Santa Maria")
+
+# Efeito sobre Ln Rendimento Real Bruto
+iplot(feols(ln_rend_bruto ~ i(ano, grupo, 2013)| reg + ano, data=dados_sm), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Santa Maria")
+
+# Efeito sobre Ln Horas trabalhadas
+iplot(feols(ln_horas_trab ~ i(ano, grupo, 2013)| reg + ano, data=dados_sm), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Santa Maria")
+
+# Efeito sobre Trabalha no Plano
+iplot(feols(trab_plano ~ i(ano, grupo, 2013)| reg + ano, data=dados_sm), se="twoway",col = "darkblue", sub = "Efeitos fixos reg e ano | Santa Maria")
+
+
+```
+
