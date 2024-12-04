@@ -1,0 +1,239 @@
+
+
+# Pacotes
+library(tidyverse)
+library(haven)
+library(plm)
+library(stargazer)
+library(lubridate)
+library(sidrar)
+library(fixest)
+library(zoo)
+library(stargazer)
+library(modelsummary)
+library(fastDummies)
+
+# ```
+
+# Construção da Base
+
+# ```{r bases}
+
+# Leitura da base de dados
+base <- readRDS("analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Sobradinho")) 
+
+# Criação da Variável de Efeito ----
+
+## Gama ----
+dados <- base |> 
+  mutate(grupo = ifelse(reg %in% c("Gama","Santa Maria"),1,0), # Monta a variável de Tratamento
+         Effect = grupo * intervencao) |> # Montar Variável de Interesse
+  filter(!is.na(ocupado), idade %in% c(18:64), mora_mesma_ra == 1) |>  # Filtra ocupados, entre 18 e 64 anos e que moram na mesma RA nos últimos 12 meses 
+  mutate(painel = case_when(mes %in% c(1,4,7,10)~"A",
+                            mes %in% c(2,5,8,11)~"B",
+                            TRUE~"C")) # Cria uma variável que sinaliza o Painel (A PED é feita em 3 paineis rotativos)
+
+dados_gama <- dados |> filter(reg %in% c("Gama","Sobradinho"))
+dados_sm <- dados |> filter(reg %in% c("Santa Maria","Recanto Das Emas"))
+
+# ```
+# Estimativas
+
+## Modelo sem controles 
+
+### Efeito Fixo de ano-mês
+
+# ```{r ef anomes sc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | aamm, data = dados_gama)
+
+# ```
+
+# ```{r ef anomes sc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | aamm, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de mês
+
+# ```{r ef mes sc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | mes, data = dados_gama)
+
+# ```
+
+# ```{r ef mes sc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | mes, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de conglom
+
+# ```{r ef conglom sc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | conglom, data = dados_gama)
+
+# ```
+
+# ```{r ef conglom sc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | conglom, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de RA
+
+# ```{r ef reg sc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg, data = dados_gama)
+
+# ```
+
+# ```{r ef reg sc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de RA e ano mes
+
+# ```{r ef reg anomes sc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg + aamm, data = dados_gama)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg^aamm, data = dados_gama)
+
+# ```
+
+# ```{r ef reg anomes sc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg + aamm, data = dados_sm)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg^aamm, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de RA e mes
+
+# ```{r ef reg mes sc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg + mes, data = dados_gama)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg^mes, data = dados_gama)
+
+# ```
+
+# ```{r ef reg mes sc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg + mes, data = dados_sm)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | reg^mes, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de conglom e mes
+
+# ```{r ef conglom mes sc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | conglom + mes, data = dados_gama)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | conglom^mes, data = dados_gama)
+
+# ```
+
+# ```{r ef conglom mes sc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | conglom + mes, data = dados_sm)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo | conglom^mes, data = dados_sm)
+
+# ```
+
+
+## Modelo com controles
+
+
+### Efeito Fixo de ano-mês
+
+# ```{r ef anomes cc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | aamm, data = dados_gama)
+
+# ```
+
+# ```{r ef anomes cc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | aamm, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de mês
+
+# ```{r ef mes cc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | mes, data = dados_gama)
+
+# ```
+
+# ```{r ef mes cc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | mes, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de conglom
+
+# ```{r ef conglom cc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | conglom, data = dados_gama)
+
+# ```
+
+# ```{r ef conglom cc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | conglom, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de RA
+
+# ```{r ef reg cc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg, data = dados_gama)
+
+# ```
+
+# ```{r ef reg cc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de RA e ano mes
+
+# ```{r ef reg anomes cc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg + aamm, data = dados_gama)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg^aamm, data = dados_gama)
+
+# ```
+
+# ```{r ef reg anomes cc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg + aamm, data = dados_sm)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg^aamm, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de RA e mes
+
+# ```{r ef reg mes cc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg + mes, data = dados_gama)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg^mes, data = dados_gama)
+
+# ```
+
+# ```{r ef reg mes cc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg + mes, data = dados_sm)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | reg^mes, data = dados_sm)
+
+# ```
+
+### Efeito Fixo de conglom e mes
+
+# ```{r ef conglom mes cc gama}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | conglom + mes, data = dados_gama)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | conglom^mes, data = dados_gama)
+
+# ```
+
+# ```{r ef conglom mes cc sm}
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | conglom + mes, data = dados_sm)
+
+feols(c(ocupado,informal, ln_rend_bruto,ln_rend_liquido,ln_horas_trab) ~ Effect + intervencao + grupo + en_sup + fem + negro + pessoas | conglom^mes, data = dados_sm)
+
+# ```
+

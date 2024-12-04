@@ -103,10 +103,10 @@ dados_nova_ped <- nova_ped |>
     informal = ifelse(is.na(ocupado),NA_integer_,informal), 
     rend_bruto = case_when(ano %in% c(2016,2017) ~ifelse(as.numeric(f331) %in% c(-0.01,-1,0,1e9,1e9 + 1), NA_integer_, as.numeric(f331)),
                            TRUE~ifelse(as.numeric(f481) %in% c(-0.01,-1,0,1e9,1e9 + 1), NA_integer_, as.numeric(f481))
-                           ),
+    ),
     rend_liquido = ifelse(as.numeric(f482) %in% c(-0.01,-1, 0,1e9,1e9 + 1), NA_integer_, as.numeric(f482)),  # Remuneração líquida (F482)
     horas_trab = case_when(ano %in% c(2016,2017) ~ifelse(as.numeric(f340) %in% c(-1, 0,1e3,1e3 + 1), NA_integer_, as.numeric(f340)),
-              TRUE ~ifelse(as.numeric(f492) %in% c(-1, 0,1e3,1e3 + 1), NA_integer_, as.numeric(f492))),
+                           TRUE ~ifelse(as.numeric(f492) %in% c(-1, 0,1e3,1e3 + 1), NA_integer_, as.numeric(f492))),
     escol = case_when(
       inst %in% c(2,3) ~ "analf",
       inst == 4 ~ "fund_inc",

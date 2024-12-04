@@ -19,7 +19,7 @@ dados_gama <- base |> filter(reg %in% c("Gama","Recanto Das Emas")) |>
   mutate(grupo = ifelse(reg == "Gama",1,0),
          Effect = grupo * intervencao) |> # Montar Variável de Interesse
   filter(!is.na(ocupado)) 
-  
+
 # Santa Maria ----
 dados_sm <- base |> filter(reg %in% c("Santa Maria","Sobradinho")) |>
   mutate(grupo = ifelse(reg == "Santa Maria",1,0),
@@ -40,8 +40,8 @@ modelsummary(list(
   "Informal | Setor"=reg2,
   "Ln Renda | Setor"=reg3,
   "Ln Horas | Setor"=reg4),
-output ="default",
-stars = T)
+  output ="default",
+  stars = T)
 
 ### Estimativas com variáveis de controle ----
 
@@ -57,7 +57,7 @@ modelsummary(list(
   "Informal | Setor (Ctrl)" = reg2_ctrl,
   "Ln Renda | Setor (Ctrl)" = reg3_ctrl,
   "Ln Horas | Setor (Ctrl)" = reg4_ctrl), 
-output = "default", stars = TRUE)
+  output = "default", stars = TRUE)
 
 
 ## Santa Maria

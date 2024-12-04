@@ -22,13 +22,11 @@ library(fixest)
 library(modelsummary)
 
 # Bases 
-base <- readRDS("../../analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Sobradinho"))
+base <- readRDS("../../analysis/dados/base_buffer_ra.RDS")
 
-base_gama <- base |> filter(reg %in% c("Gama","Sobradinho")) |> 
-  mutate(grupo = ifelse(reg == "Gama",1,0))
+base_gama <- base |> filter(modelo == "Gama") 
 
-base_sm <- base |> filter(reg %in% c("Santa Maria","Recanto Das Emas")) |> 
-  mutate(grupo = ifelse(reg == "Santa Maria",1,0))
+base_sm <- base |> filter(modelo == "Santa Maria") 
 ```
 
 # Exposição dos resultados dos modelos iniciais
@@ -179,9 +177,8 @@ grafico_sm # Gráficos de Santa Maria
 ```{r estimativas gama }
 
 ## Gama ----
-dados_gama <- base |> filter(reg %in% c("Gama","Sobradinho")) |> 
-  mutate(grupo = ifelse(reg == "Gama",1,0),
-         Effect = grupo * intervencao) |> # Montar Variável de Interesse
+dados_gama <- base |> filter(modelo == "Gama") |> 
+  mutate(Effect = grupo * intervencao) |> # Montar Variável de Interesse
   filter(!is.na(ocupado)) 
   
 
@@ -225,9 +222,8 @@ output = "default", stars = TRUE)
 ```{r estimativas sm}
 
 # Santa Maria ----
-dados_sm <- base |> filter(reg %in% c("Santa Maria","Recanto Das Emas")) |>
-  mutate(grupo = ifelse(reg == "Santa Maria",1,0),
-         Effect = grupo * intervencao) |> # Montar Variável de Interesse
+dados_sm <- base |> filter(modelo == "Santa Maria") |> 
+  mutate(Effect = grupo * intervencao) |> # Montar Variável de Interesse
   filter(!is.na(ocupado))
 
 
@@ -318,4 +314,3 @@ iplot(feols(trab_plano ~ i(ano, grupo, 2013)| reg + ano, data=dados_sm), se="two
 
 
 ```
-
