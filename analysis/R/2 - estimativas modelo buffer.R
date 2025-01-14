@@ -10,14 +10,27 @@ dados <- readRDS("analysis/dados/base.RDS")
 #### Montar Variável de Interesse ###
 
 dados <- dados[!is.na(dados$ocupado), ]
+#dados <- dados |> filter(NM_SUBDIST == "GAMA")
 
 attach(dados)
 
 dados$Effect <- grupo_20 * intervencao
 
+dados |> 
+  as_survey(peso) |> 
+  group_by(NM_SUBDIST ,bairro,intervencao) |> 
+  summarise(renda = survey_mean(rend_bruto,na.rm = T)) |> 
+  ggplot(aes(x = bairro,y = renda,fill = factor(intervencao))) + 
+  geom_col(position = "dodge") +
+  facet_wrap(~NM_SUBDIST)
+
+
 # Estimativas Iniciais ----
 
-reg1 <- feols(ocupado ~ Effect | setor + ano , ~setor, data=dados)
+reg1 <- feols(log(rend_bruto) ~ Effect | intervencao + bairro + ano + cor + escol + posicao_fam, ~conglom, data=dados)
+
+reg1
+
 reg2 <- feols(informal ~ Effect | setor + ano, ~setor, data=dados)
 reg3 <- feols(ln_rend_bruto ~ Effect | setor + ano, ~setor, data=dados)
 reg4 <- feols(ln_horas_trab ~ Effect | setor + ano, ~setor, data=dados)

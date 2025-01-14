@@ -91,7 +91,7 @@ deflator <- rbind(
          deflator = inpc_acumulado / last(inpc_acumulado)) |>   # Perído base: Jan/2023 
   dplyr::select(aamm1,deflator)
 
-# Microdados
+  # Microdados
 ped <- readRDS(build("Rds/ped_vars.RDS"))
 nova_ped <- readRDS(build("Rds/nova_ped_vars.RDS"))
 dados_cs <- readRDS(build("dados/dados_controle_sintetico.RDS"))

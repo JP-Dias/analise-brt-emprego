@@ -17,8 +17,10 @@ linha_brt <- st_zm(linha_brt, drop = TRUE, what = "ZM") # Remove Eixo Z
 ## Buffer Estações BRT ----
 buffer15 <- st_buffer(estacoes_brt, dist = 1500)
 buffer20 <- st_buffer(estacoes_brt, dist = 2000)
-buffer25 <- st_buffer(estacoes_brt, dist = 2500)
-buffer30 <- st_buffer(estacoes_brt, dist = 3000)
+buffer35 <- st_buffer(estacoes_brt, dist = 3500)
+buffer45 <- st_buffer(estacoes_brt, dist = 4500)
+buffer55 <- st_buffer(estacoes_brt, dist = 5500)
+buffer65 <- st_buffer(estacoes_brt, dist = 6500)
 
 # Ajusta geometria da malha de 2000
 setores_validos <- st_make_valid(join_ped_09_16_malha_2000)
@@ -29,14 +31,18 @@ sf_use_s2(FALSE)
 ## PED ----
 grupos_15_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer15)
 grupos_20_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer20)
-grupos_25_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer25)
-grupos_30_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer30)
+grupos_35_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer35)
+grupos_45_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer45)
+grupos_55_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer55)
+grupos_65_ped_09_16 <- classifica_setor(join_ped_09_16_malha_2000, buffer65)
 
 ## Nova PED ----
 grupos_15_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer15) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
 grupos_20_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer20) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
-grupos_25_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer25) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
-grupos_30_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer30) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
+grupos_35_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer35) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
+grupos_45_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer45) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
+grupos_55_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer55) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
+grupos_65_ped_16_19 <- classifica_setor(join_ped_16_19_malha_2000, buffer65) |> mutate(grupo = ifelse(CODSETOR2000 == 530010805250113,0,grupo))
 sf_use_s2(TRUE) 
 
 # Cria grupos de Tratamento ----
@@ -45,16 +51,20 @@ join_09_16 <- ped |>
   mutate(conglom = as.double(substr(conglom,1,6))) |> 
   left_join(grupos_15_ped_09_16 |> rename(grupo_15 = grupo) |> st_drop_geometry()) |> 
   left_join(grupos_20_ped_09_16 |> rename(grupo_20 = grupo) |> st_drop_geometry()) |> 
-  left_join(grupos_25_ped_09_16 |> rename(grupo_25 = grupo) |> st_drop_geometry()) |> 
-  left_join(grupos_30_ped_09_16 |> rename(grupo_30 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_35_ped_09_16 |> rename(grupo_35 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_45_ped_09_16 |> rename(grupo_45 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_55_ped_09_16 |> rename(grupo_55 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_65_ped_09_16 |> rename(grupo_65 = grupo) |> st_drop_geometry()) |> 
   filter(!is.na(CODSETOR2000)) |> unique()
 
 # Nova PED
 join_16_19 <- nova_ped |> 
   left_join(grupos_15_ped_16_19 |> rename(grupo_15 = grupo) |> st_drop_geometry()) |> 
   left_join(grupos_20_ped_16_19 |> rename(grupo_20 = grupo) |> st_drop_geometry()) |> 
-  left_join(grupos_25_ped_16_19 |> rename(grupo_25 = grupo) |> st_drop_geometry()) |> 
-  left_join(grupos_30_ped_16_19 |> rename(grupo_30 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_35_ped_16_19 |> rename(grupo_35 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_45_ped_16_19 |> rename(grupo_45 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_55_ped_16_19 |> rename(grupo_55 = grupo) |> st_drop_geometry()) |> 
+  left_join(grupos_65_ped_16_19 |> rename(grupo_65 = grupo) |> st_drop_geometry()) |> 
   filter(!is.na(CODSETOR2000)) |> unique()
 
 # mapview(grupos_20_ped_16_19 |> filter(CODSETOR2000 != 530010805250113),zcol = "grupo",alpha.regions = .4) +
@@ -97,15 +107,21 @@ base <- base |>
          negro = ifelse(cor %in% c("preta","parda"),1,0),
          idade2 = sqrt(idade),
          setor = CODSETOR2000
-         ) |> 
-  select(aamm,ano,mes,bairro,setor,
-         grupo_15,grupo_20,grupo_25,grupo_30,
-         intervencao,ocupado,informal,trab_plano,
-         horas_trab,ln_horas_trab,rend_bruto,ln_rend_bruto,
-         en_sup,idade,idade2,fem,negro,mora_mesma_ra,pessoas)
-  
+         )# |>
+  # select(aamm,ano,mes,bairro,setor,
+  #        grupo_15,grupo_20,grupo_25,grupo_30,
+  #        intervencao,ocupado,informal,trab_plano,
+  #        horas_trab,ln_horas_trab,rend_bruto,ln_rend_bruto,
+  #        en_sup,idade,idade2,fem,negro,mora_mesma_ra,pessoas)
+  # 
 # Cria Dummies
 #base <- dummy_cols(base)
 
 # Salva
 saveRDS(base, analysis("dados/base.RDS"))
+
+sum(base$grupo_20)
+sum(base$grupo_35)
+sum(base$grupo_45)
+sum(base$grupo_55)
+sum(base$grupo_65)

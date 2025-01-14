@@ -7,12 +7,12 @@ library(sidrar)
 library(zoo)
 
 # Leitura da base_gama de dados
-base<- readRDS("analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Sobradinho"))
+base<- readRDS("analysis/dados/base_ra.RDS") 
 
-base_gama <- base_gama |> filter(reg %in% c("Gama","Recanto Das Emas")) |> 
+base_gama <- base |> filter(reg %in% c("Gama","Brazlândia"),ano>2009) |> 
   mutate(grupo = ifelse(reg == "Gama",1,0))
 
-base_sm <- base |> filter(reg %in% c("Santa Maria","Sobradinho")) |> 
+base_sm <- base |> filter(reg %in% c("Santa Maria","Recanto Das Emas"),ano>2009) |> 
   mutate(grupo = ifelse(reg == "Santa Maria",1,0))
 
 # base_gama Gama ----
@@ -38,11 +38,11 @@ tab1_gama <- base_gama |>
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
 
 tabela_gama <- cbind(tab1_gama |> filter(periodo == "Pre-BRT") |> select(-periodo),
-                tab1_gama |> filter(periodo == "Post-BRT")|> select(-periodo)) |> 
+                tab1_gama |> filter(periodo == "Post-BRT")|> select(-c(periodo,Variável))) |> 
   kableExtra::kable(col.names = c("Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD", 
-                                  "Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD"),
-                    align = "lccccclcccc") |>
-  kableExtra::add_header_above(c(" " = 2, "Pre-BRT" = 4, "Post-BRT" = 4)) |>
+                                  "Control Mean", "Control SD", "Treated Mean", "Treated SD"),
+                    align = "lcccclcccc",format = "latex") |>
+  kableExtra::add_header_above(c(" " = 2, "Pre-BRT" = 3, "Post-BRT" = 4)) |>
   kableExtra::row_spec(0, bold = TRUE, font_size = 12) |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
@@ -71,11 +71,11 @@ tab1_sm <- base_sm |>
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
 
 tabela_sm <- cbind(tab1_sm |> filter(periodo == "Pre-BRT") |> select(-periodo),
-                     tab1_sm |> filter(periodo == "Post-BRT")|> select(-periodo)) |> 
+                     tab1_sm |> filter(periodo == "Post-BRT")|>select(-c(periodo,Variável))) |> 
   kableExtra::kable(col.names = c("Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD", 
-                                  "Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD"),
-                    align = "lccccclcccc") |>
-  kableExtra::add_header_above(c(" " = 2, "Pre-BRT" = 4, "Post-BRT" = 4)) |>
+                                   "Control Mean", "Control SD", "Treated Mean", "Treated SD"),
+                    align = "lcccclcccc",format = "latex") |>
+  kableExtra::add_header_above(c(" " = 2, "Pre-BRT" = 3, "Post-BRT" = 4)) |>
   kableExtra::row_spec(0, bold = TRUE, font_size = 12) |>
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 

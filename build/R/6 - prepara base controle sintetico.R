@@ -129,7 +129,11 @@ base <- ped |>
       )
     )
   ) |> 
-  mutate(mora_trabalha = ifelse(local_trab == reg,1,0))
+  mutate(mora_trabalha = ifelse(local_trab == reg,1,0)) |> 
+  mutate(inativo = ifelse(sit %in% c(5:6),1,0),
+         servic = ifelse(setor == 500,1,0),
+         servic = ifelse(is.na(ocupado),NA_integer_,servic),
+         superior = ifelse(inst == 9,1,0))
 
 #prop.table(table(base$reg,base$mora_trabalha),1)*100
 
@@ -140,6 +144,30 @@ perc_analf <- base |>
   filter(idade > 18) |> 
   group_by(ano,reg) |> 
   summarise(perc_analf = survey_mean(analf,na.rm = T, vartype = "cv")) |> 
+  na.omit()
+
+perc_sup <- base |> 
+  filter(idade > 18) |> 
+  group_by(ano,reg) |> 
+  summarise(perc_sup = survey_mean(superior,na.rm = T, vartype = "cv")) |> 
+  na.omit()
+
+perc_inativo <- base |> 
+  filter(idade > 18) |> 
+  group_by(ano,reg) |> 
+  summarise(perc_inativo = survey_mean(inativo,na.rm = T, vartype = "cv")) |> 
+  na.omit()
+
+perc_ocupado <- base |> 
+  filter(idade > 18) |> 
+  group_by(ano,reg) |> 
+  summarise(perc_ocupado = survey_mean(ocupado,na.rm = T, vartype = "cv")) |> 
+  na.omit()
+
+perc_servic <- base |> 
+  filter(idade > 18) |> 
+  group_by(ano,reg) |> 
+  summarise(perc_servic = survey_mean(servic,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
 # Idade Média
@@ -222,12 +250,22 @@ massa_salarial <- base |>
   summarise(massa_salarial = survey_total(rend_bruto/deflator,na.rm = T, vartype = "cv")) |> 
   na.omit()
 
+base |> 
+  filter(rfam != -1000) |> 
+  group_by(ano,reg) |> 
+  summarise(massa_salarial = survey_mean(rend_bruto/deflator,na.rm = T, vartype = "cv")) |> 
+  na.omit() |> 
+  ggplot(aes(x = ano, y = massa_salarial, color = reg)) + geom_line() + facet_wrap(~reg)
+
 dados_cs <- renda_fam_media |> 
   left_join(perc_analf) |> 
+  left_join(perc_sup) |> 
   left_join(media_idade) |> 
   left_join(perc_idoso) |> 
   left_join(media_familia) |> 
   left_join(perc_informal) |> 
+  left_join(perc_ocupado) |> 
+  left_join(perc_servic) |> 
   left_join(perc_nasc_df) |> 
   left_join(perc_mora_trabalha) |> 
   left_join(n_empregos) |> 
