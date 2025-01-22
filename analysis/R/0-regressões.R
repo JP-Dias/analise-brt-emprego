@@ -11,9 +11,18 @@ library(modelsummary)
 
 # Leitura da base_gama de dados
 dados <- readRDS("analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Brazlândia"))
-
-
-
+# 
+# dados <- dados |> filter(reg%in%"Santa Maria")
+# 
+# teste <- dados |> filter(!is.na(rend_bruto)) |> as_survey(weights = peso)
+# 
+# gini <- function(x){data.frame(ano = x, gini = convey::svygini(~rend_bruto,convey_prep(teste |> filter(ano == x)))[1])}
+# 
+# gini(2010)
+# 
+# anos <- unique(dados$ano)
+# 
+# lapply(anos, gini) |> bind_rows() |> plot()
 
 dados2 <- subset(dados, reg %in% c("Gama", "Brazlândia"))
 
@@ -313,3 +322,30 @@ modelsummary(list("18-29"=reg33,
              coef_map = c("BRT_Effect" = "Efeito BRT"),
              output = "latex_tabular",
              stars = T)
+
+# Endogeneidade #######
+
+reg38 <- feols(negro ~ BRT_Effect + idade + idade2 | reg + aamm + fem  + escol + posicao_fam  , ~reg,weights = ~peso, data=dados3)
+
+
+reg39 <- feols(en_sup ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + posicao_fam, ~reg,weights = ~peso, data=dados3 |> filter(idade>35))
+
+
+reg40 <- feols(trab_plano ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + posicao_fam,  ~reg,weights = ~peso, data=dados3)
+
+
+#reg41 <- feols(log(mora_mesma_ra) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
+
+
+modelsummary(list("Negro"=reg38,
+                  "Ensino Superior"=reg39,
+                  "Trabalha no CBD"=reg40#,
+                  #"Mora na RA"=reg41
+                  ),
+             coef_map = c("BRT_Effect" = "Efeito BRT"),
+             output = "default", #"latex_tabular",
+             stars = T)
+
+reg42 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(informal ==0))
+
+summary(reg42)
