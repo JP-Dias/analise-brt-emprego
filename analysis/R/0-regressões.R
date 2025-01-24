@@ -8,6 +8,7 @@ library(fixest)
 library(zoo)
 library(stargazer)
 library(modelsummary)
+library(haven)
 
 # Leitura da base_gama de dados
 dados <- readRDS("analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Brazlândia"))
@@ -113,10 +114,20 @@ modelsummary(list(reg7,reg8,reg9,reg10,reg11,reg12),coef_map = c("BRT_Effect" = 
 
   ##### Mechanisms - Santa Maria ######
 
+dados_taxas <- dados3 |> 
+  mutate(pea = ifelse(is.na(ocupado),0,1)) |>
+  group_by(aamm) |> 
+  mutate(n_pea = sum(pea*peso),
+         n_ocup = sum(ocupado*peso,na.rm = T)) |> 
+  ungroup() |> 
+  mutate(tx_part = n_ocup/n_pea)
+
+feols(log(tx_part) ~ BRT_Effect + idade + idade2 | reg + aamm ,  ~reg, data=dados_taxas)
+
 reg13 <- feols(ocupado ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + posicao_fam, ~reg,weights = ~peso, data=dados3)
 summary(reg13)
 
-reg14 <- feols(informal ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam, ~reg,weights = ~peso, data=dados3)
+reg14 <- feols(informal ~ BRT_Effect + idade + idade2 | reg + aamm + fem  + cor + escol + setor_atv + posicao_fam, ~reg,weights = ~peso, data=dados3)
 summary(reg14)
 
 reg15 <- feols(trab_plano ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
@@ -349,3 +360,5 @@ modelsummary(list("Negro"=reg38,
 reg42 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(informal ==0))
 
 summary(reg42)
+
+library(haven)

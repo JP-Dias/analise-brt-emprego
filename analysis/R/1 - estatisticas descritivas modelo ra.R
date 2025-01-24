@@ -5,6 +5,7 @@ library(stargazer)
 library(lubridate)
 library(sidrar)
 library(zoo)
+library(Hmisc)
 
 # Leitura da base_gama de dados
 base<- readRDS("analysis/dados/base_ra.RDS") 
@@ -22,18 +23,24 @@ tab1_gama <- base_gama |>
          periodo = ifelse(aamm < 201406, "Pre-BRT", "Post-BRT")) |>
   group_by(grupo, periodo) |>
   summarise(
-    Ocupados_Mean = mean(ocupado, na.rm = TRUE),
-    Ocupados_SD = sd(ocupado, na.rm = TRUE),
-    Informais_Mean = mean(informal, na.rm = TRUE),
-    Informais_SD = sd(informal, na.rm = TRUE),
-    Rendimento_Mean = mean(rend_bruto, na.rm = TRUE),
-    Rendimento_SD = sd(rend_bruto, na.rm = TRUE),
-    Horas_Mean = mean(horas_trab, na.rm = TRUE),
-    Horas_SD = sd(horas_trab, na.rm = TRUE),
-    Moradores_Mean = mean(pessoas, na.rm = TRUE),
-    Moradores_SD = sd(pessoas, na.rm = TRUE)
+    Ocupados_Mean = wtd.mean(ocupado,peso, na.rm = TRUE),  
+    Ocupados_SD = sqrt(wtd.var(ocupado,peso, na.rm = TRUE)),
+    Informais_Mean = wtd.mean(informal,peso, na.rm = TRUE),
+    Informais_SD = sqrt(wtd.var(informal,peso, na.rm = TRUE)),
+    Rendimento_Mean = wtd.mean(rend_bruto,peso, na.rm = TRUE),
+    Rendimento_SD = sqrt(wtd.var(rend_bruto,peso, na.rm = TRUE)),
+    Horas_Mean = wtd.mean(horas_trab,peso, na.rm = TRUE),
+    Horas_SD = sqrt(wtd.var(horas_trab,peso, na.rm = TRUE)),
+    Moradores_Mean = wtd.mean(pessoas,peso, na.rm = TRUE),
+    Moradores_SD = sqrt(wtd.var(pessoas,peso, na.rm = TRUE)),
+    Negro_Mean = wtd.mean(negro,peso, na.rm = TRUE),
+    Negro_SD = sqrt(wtd.var(negro,peso, na.rm = TRUE)),
+    Mulher_Mean = wtd.mean(fem,peso, na.rm = TRUE),
+    Mulher_SD = sqrt(wtd.var(fem,peso, na.rm = TRUE)),
+    Superior_Mean = wtd.mean(en_sup,peso,na.rm = TRUE),
+    Superior_SD = sqrt(wtd.var(en_sup,peso,na.rm = TRUE))
   ) |>
-  pivot_longer(cols = Ocupados_Mean:Moradores_SD, names_to = "Variável", values_to = "Valor") |>
+  pivot_longer(cols = Ocupados_Mean:Superior_SD, names_to = "Variável", values_to = "Valor") |>
   separate(Variável, into = c("Variável", "Métrica")) |> 
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
 
@@ -55,18 +62,24 @@ tab1_sm <- base_sm |>
          periodo = ifelse(aamm < 201406, "Pre-BRT", "Post-BRT")) |>
   group_by(grupo, periodo) |>
   summarise(
-    Ocupados_Mean = mean(ocupado, na.rm = TRUE),
-    Ocupados_SD = sd(ocupado, na.rm = TRUE),
-    Informais_Mean = mean(informal, na.rm = TRUE),
-    Informais_SD = sd(informal, na.rm = TRUE),
-    Rendimento_Mean = mean(rend_bruto, na.rm = TRUE),
-    Rendimento_SD = sd(rend_bruto, na.rm = TRUE),
-    Horas_Mean = mean(horas_trab, na.rm = TRUE),
-    Horas_SD = sd(horas_trab, na.rm = TRUE),
-    Moradores_Mean = mean(pessoas, na.rm = TRUE),
-    Moradores_SD = sd(pessoas, na.rm = TRUE)
+    Ocupados_Mean = wtd.mean(ocupado,peso, na.rm = TRUE),  
+    Ocupados_SD = sqrt(wtd.var(ocupado,peso, na.rm = TRUE)),
+    Informais_Mean = wtd.mean(informal,peso, na.rm = TRUE),
+    Informais_SD = sqrt(wtd.var(informal,peso, na.rm = TRUE)),
+    Rendimento_Mean = wtd.mean(rend_bruto,peso, na.rm = TRUE),
+    Rendimento_SD = sqrt(wtd.var(rend_bruto,peso, na.rm = TRUE)),
+    Horas_Mean = wtd.mean(horas_trab,peso, na.rm = TRUE),
+    Horas_SD = sqrt(wtd.var(horas_trab,peso, na.rm = TRUE)),
+    Moradores_Mean = wtd.mean(pessoas,peso, na.rm = TRUE),
+    Moradores_SD = sqrt(wtd.var(pessoas,peso, na.rm = TRUE)),
+    Negro_Mean = wtd.mean(negro,peso, na.rm = TRUE),
+    Negro_SD = sqrt(wtd.var(negro,peso, na.rm = TRUE)),
+    Mulher_Mean = wtd.mean(fem,peso, na.rm = TRUE),
+    Mulher_SD = sqrt(wtd.var(fem,peso, na.rm = TRUE)),
+    Superior_Mean = wtd.mean(en_sup,peso,na.rm = TRUE),
+    Superior_SD = sqrt(wtd.var(en_sup,peso,na.rm = TRUE))
   ) |>
-  pivot_longer(cols = Ocupados_Mean:Moradores_SD, names_to = "Variável", values_to = "Valor") |>
+  pivot_longer(cols = Ocupados_Mean:Superior_SD, names_to = "Variável", values_to = "Valor") |>
   separate(Variável, into = c("Variável", "Métrica")) |> 
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
 
