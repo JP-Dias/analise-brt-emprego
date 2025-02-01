@@ -11,7 +11,7 @@ library(modelsummary)
 library(haven)
 
 # Leitura da base_gama de dados
-dados <- readRDS("analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Brazlândia"))
+dados <- readRDS("analysis/dados/base_ra.RDS") #|> filter(reg %in% c("Gama","Santa Maria","Recanto Das Emas","Brazlândia"))
 # 
 # dados <- dados |> filter(reg%in%"Santa Maria")
 # 
@@ -25,7 +25,7 @@ dados <- readRDS("analysis/dados/base_ra.RDS") |> filter(reg %in% c("Gama","Sant
 # 
 # lapply(anos, gini) |> bind_rows() |> plot()
 
-dados2 <- subset(dados, reg %in% c("Gama", "Brazlândia"))
+dados2 <- subset(dados, reg %in% c("Gama", "Ceilândia"))
 
 dados3 <- subset(dados, reg %in% c("Santa Maria", "Recanto Das Emas"))
 
@@ -34,10 +34,10 @@ dados2 <- subset(dados2, !ano %in% c(2009, 2018, 2019))
 
 
 ### Create a Variable of Interest ###
-dados1 <- dados
+#dados1 <- dados
 
-dados1$BRT_Effect <- ifelse(dados1$aamm > "201406" & dados$reg %in% c("Santa Maria","Gama"), 1, 0)
-dados1$Treat <- ifelse(dados1$reg %in% c("Santa Maria","Gama"), 1, 0)
+#dados1$BRT_Effect <- ifelse(dados1$aamm > "201406" & dados$reg %in% c("Santa Maria","Gama"), 1, 0)
+#dados1$Treat <- ifelse(dados1$reg %in% c("Santa Maria","Gama"), 1, 0)
 
 dados3$BRT_Effect <- ifelse(dados3$aamm > "201406" & dados3$reg == "Santa Maria", 1, 0)
 dados3$Treat <- ifelse(dados3$reg == "Santa Maria", 1, 0)
@@ -47,13 +47,13 @@ dados2$Treat <- ifelse(dados2$reg == "Gama", 1, 0)
 
 
 #### Main Results - Santa Maria ####
-
-reg0 <- feols(log(rend_bruto) ~ BRT_Effect | reg + aamm, ~reg,weights = ~peso,data=dados1)
-reg01 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + posicao_fam + setor_atv, ~conglom,weights = ~peso,data=dados1)
-
-modelsummary(list(reg7, reg8, reg9, reg1, reg2, reg3),
-             output = "latex_tabular",
-             stars = T)
+# 
+# reg0 <- feols(log(rend_bruto) ~ BRT_Effect | reg + aamm, ~reg,weights = ~peso,data=dados1)
+# reg01 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + posicao_fam + setor_atv, ~conglom,weights = ~peso,data=dados1)
+# 
+# modelsummary(list(reg7, reg8, reg9, reg1, reg2, reg3),
+#              output = "latex_tabular",
+#              stars = T)
 
 attach(dados3)
 
@@ -111,6 +111,8 @@ summary(reg8)
 modelsummary(list(reg7,reg8,reg9,reg10,reg11,reg12),coef_map = c("BRT_Effect" = "Efeito BRT"),
              #output = "latex_tabular",
              stars = T)
+
+
 
   ##### Mechanisms - Santa Maria ######
 

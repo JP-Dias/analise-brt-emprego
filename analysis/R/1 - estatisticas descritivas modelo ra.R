@@ -6,21 +6,25 @@ library(lubridate)
 library(sidrar)
 library(zoo)
 library(Hmisc)
+library(fastDummies)
 
 # Leitura da base_gama de dados
 base<- readRDS("analysis/dados/base_ra.RDS") 
 
 base_gama <- base |> filter(reg %in% c("Gama","Brazlândia"),ano>2009) |> 
-  mutate(grupo = ifelse(reg == "Gama",1,0))
+  mutate(grupo = ifelse(reg == "Gama",1,0)) |> 
+  dummy_cols("setor_atv")
 
 base_sm <- base |> filter(reg %in% c("Santa Maria","Recanto Das Emas"),ano>2009) |> 
-  mutate(grupo = ifelse(reg == "Santa Maria",1,0))
+  mutate(grupo = ifelse(reg == "Santa Maria",1,0)) |> 
+  dummy_cols("setor_atv")
 
 # base_gama Gama ----
 
 tab1_gama <- base_gama |>
   mutate(grupo = ifelse(grupo == 1,"Treated","Control"),
          periodo = ifelse(aamm < 201406, "Pre-BRT", "Post-BRT")) |>
+  filter(periodo == "Pre-BRT") |> 
   group_by(grupo, periodo) |>
   summarise(
     Ocupados_Mean = wtd.mean(ocupado,peso, na.rm = TRUE),  
@@ -38,11 +42,27 @@ tab1_gama <- base_gama |>
     Mulher_Mean = wtd.mean(fem,peso, na.rm = TRUE),
     Mulher_SD = sqrt(wtd.var(fem,peso, na.rm = TRUE)),
     Superior_Mean = wtd.mean(en_sup,peso,na.rm = TRUE),
-    Superior_SD = sqrt(wtd.var(en_sup,peso,na.rm = TRUE))
+    Superior_SD = sqrt(wtd.var(en_sup,peso,na.rm = TRUE)),
+    Servic_Mean = wtd.mean(setor_atv_servic,peso,na.rm = TRUE),
+    Servic_SD =  sqrt(wtd.var(setor_atv_servic,peso,na.rm = TRUE)),
+    #
+    Comerc_Mean = wtd.mean(setor_atv_comerc,peso,na.rm = TRUE),
+    Comerc_SD =  sqrt(wtd.var(setor_atv_comerc,peso,na.rm = TRUE)),
+    #
+    Indust_Mean = wtd.mean(setor_atv_indust,peso,na.rm = TRUE),
+    Indust_SD =  sqrt(wtd.var(setor_atv_indust,peso,na.rm = TRUE)),
+    #
+    Construc_Mean = wtd.mean(setor_atv_construc,peso,na.rm = TRUE),
+    Construc_SD =  sqrt(wtd.var(setor_atv_construc,peso,na.rm = TRUE)),
+    #
+    Outros_Mean = wtd.mean(setor_atv_outros,peso,na.rm = TRUE),
+    Outros_SD =  sqrt(wtd.var(setor_atv_outros,peso,na.rm = TRUE))
+    #
   ) |>
-  pivot_longer(cols = Ocupados_Mean:Superior_SD, names_to = "Variável", values_to = "Valor") |>
+  pivot_longer(cols = Ocupados_Mean:Outros_SD, names_to = "Variável", values_to = "Valor") |>
   separate(Variável, into = c("Variável", "Métrica")) |> 
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
+
 
 tabela_gama <- cbind(tab1_gama |> filter(periodo == "Pre-BRT") |> select(-periodo),
                 tab1_gama |> filter(periodo == "Post-BRT")|> select(-c(periodo,Variável))) |> 
@@ -60,6 +80,7 @@ tabela_gama
 tab1_sm <- base_sm |>
   mutate(grupo = ifelse(grupo == 1,"Treated","Control"),
          periodo = ifelse(aamm < 201406, "Pre-BRT", "Post-BRT")) |>
+  filter(periodo == "Pre-BRT") |> 
   group_by(grupo, periodo) |>
   summarise(
     Ocupados_Mean = wtd.mean(ocupado,peso, na.rm = TRUE),  
@@ -77,9 +98,24 @@ tab1_sm <- base_sm |>
     Mulher_Mean = wtd.mean(fem,peso, na.rm = TRUE),
     Mulher_SD = sqrt(wtd.var(fem,peso, na.rm = TRUE)),
     Superior_Mean = wtd.mean(en_sup,peso,na.rm = TRUE),
-    Superior_SD = sqrt(wtd.var(en_sup,peso,na.rm = TRUE))
+    Superior_SD = sqrt(wtd.var(en_sup,peso,na.rm = TRUE)),
+    Servic_Mean = wtd.mean(setor_atv_servic,peso,na.rm = TRUE),
+    Servic_SD =  sqrt(wtd.var(setor_atv_servic,peso,na.rm = TRUE)),
+    #
+    Comerc_Mean = wtd.mean(setor_atv_comerc,peso,na.rm = TRUE),
+    Comerc_SD =  sqrt(wtd.var(setor_atv_comerc,peso,na.rm = TRUE)),
+    #
+    Indust_Mean = wtd.mean(setor_atv_indust,peso,na.rm = TRUE),
+    Indust_SD =  sqrt(wtd.var(setor_atv_indust,peso,na.rm = TRUE)),
+    #
+    Construc_Mean = wtd.mean(setor_atv_construc,peso,na.rm = TRUE),
+    Construc_SD =  sqrt(wtd.var(setor_atv_construc,peso,na.rm = TRUE)),
+    #
+    Outros_Mean = wtd.mean(setor_atv_outros,peso,na.rm = TRUE),
+    Outros_SD =  sqrt(wtd.var(setor_atv_outros,peso,na.rm = TRUE))
+    #
   ) |>
-  pivot_longer(cols = Ocupados_Mean:Superior_SD, names_to = "Variável", values_to = "Valor") |>
+  pivot_longer(cols = Ocupados_Mean:Outros_SD, names_to = "Variável", values_to = "Valor") |>
   separate(Variável, into = c("Variável", "Métrica")) |> 
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
 
