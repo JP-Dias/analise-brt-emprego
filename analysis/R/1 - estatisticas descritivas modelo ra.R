@@ -11,7 +11,7 @@ library(fastDummies)
 # Leitura da base_gama de dados
 base<- readRDS("analysis/dados/base_ra.RDS") 
 
-base_gama <- base |> filter(reg %in% c("Gama","Brazlândia"),ano>2009) |> 
+base_gama <- base |> filter(reg %in% c("Gama","Ceilândia"),ano>2009) |> 
   mutate(grupo = ifelse(reg == "Gama",1,0)) |> 
   dummy_cols("setor_atv")
 
