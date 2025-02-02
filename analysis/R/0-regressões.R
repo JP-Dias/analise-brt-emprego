@@ -51,9 +51,10 @@ dados2$Treat <- ifelse(dados2$reg == "Gama", 1, 0)
 # reg0 <- feols(log(rend_bruto) ~ BRT_Effect | reg + aamm, ~reg,weights = ~peso,data=dados1)
 # reg01 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + posicao_fam + setor_atv, ~conglom,weights = ~peso,data=dados1)
 # 
-# modelsummary(list(reg7, reg8, reg9, reg1, reg2, reg3),
-#              output = "latex_tabular",
-#              stars = T)
+modelsummary(list(reg7, reg8, reg9, reg1, reg2, reg3),
+             #output = "latex_tabular", 
+             coef_map = c("BRT_Effect" = "Efeito BRT","Treat"= "Tratado"),
+             stars = T)
 
 attach(dados3)
 
@@ -78,7 +79,7 @@ summary(reg6)
 
 modelsummary(list(reg1,reg2,reg3,reg4,reg5,reg6),
              coef_map = c("BRT_Effect" = "Efeito BRT","Treat"= "Tratado"),
-             output = "markdown",
+             #output = "markdown",
              stars = T)
 
 
@@ -164,10 +165,89 @@ iplot(reg14,
       main = "Teste")
 
 
+modelo1 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) | reg + aamm, 
+                 cluster = "reg",
+                 weights = ~peso,
+                 data = dados3)
+
+modelo2 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,
+                 cluster = "reg",
+                 weights = ~peso,
+                 data = dados3)
+
+modelo3 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) | reg + aamm, 
+                 cluster = "conglom",
+                 weights = ~peso,
+                 data = dados3)
+
+modelo4 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,
+                 cluster = "conglom",
+                 weights = ~peso,
+                 data = dados3)
+
+par(mar = c(3, 4, 1, 2))
+
+# Plota os coeficientes dos dois modelos juntos
+iplot(list(modelo1, modelo2), 
+      col = c("darkblue", "darkred"), 
+      pt.size = 1.5,
+      ylab = "Efeito Log-Rendimento Bruto",
+      xlab = "",
+      sub = "",
+      main = "")
+
+
+# Adiciona a legenda
+legend("topleft",  # posição da legenda (por exemplo, "topright", "bottomleft", etc.)
+       legend = c("Modelo Simples", "Modelo com Controles"),  # nomes dos modelos
+       col = c("darkblue", "darkred"),  # cores correspondentes
+       pch = c(20, 17),  # formas dos pontos: 20 (círculo), 17 (triângulo)
+       pt.cex = 1.5,  # tamanho dos pontos na legenda
+       title = "Modelo")  # título da legenda
+
+
+
+
+# Plota os coeficientes dos dois modelos juntos
+iplot(list(modelo3, modelo4), 
+      col = c("darkgreen", "darkorange"), 
+      pt.size = 1.5,
+      ylab = "Efeito Log-Rendimento Bruto",
+      xlab = "",
+      sub = "",
+      main = "")
+
+legend("topleft",  # posição da legenda (por exemplo, "topright", "bottomleft", etc.)
+       legend = c("Modelo Simples", "Modelo com Controles"),  # nomes dos modelos
+       col = c("darkgreen", "darkorange"),  # cores correspondentes
+       pch = c(20, 17),  # formas dos pontos: 20 (círculo), 17 (triângulo)
+       pt.cex = 1.5,  # tamanho dos pontos na legenda
+       title = "Modelo")  # título da legenda
+
+
+
+iplot(list(modelo1, modelo2,modelo3, modelo4), 
+      col = c("darkblue", "darkred", "darkgreen", "darkorange"), 
+      pt.size = 1.5,
+      ylab = "Efeito Log-Rendimento Bruto",
+      xlab = "",
+      sub = "",
+      main = "")
+
+# Adiciona a legenda ao gráfico
+legend("topleft",  # posição da legenda
+       legend = c("Modelo Simples (bairro)", "Modelo com Controles (bairro)", "Modelo Simples (conglomerado)", "Modelo com Controles (conglomerado)"),  
+       col = c("darkblue", "darkred", "darkgreen", "darkorange"),  # cores correspondentes aos modelos
+       pch = c(20, 17, 15, 1),  # formas dos pontos: 20 (círculo), 17 (triângulo), 15 (quadrado), 1 (círculo vazio)
+       pt.cex = 1.5,  # tamanho dos pontos na legenda
+       title = "Cluster de Erro Padrão")  # título da legenda
+
+
+
 # 9.8 x 6.0
 
 iplot(
-  reg14,
+  reg1,
   col = "darkblue",             # Cor das barras
   sub = "Efeitos fixos de região e ano-mês", # Subtítulo refinado
   main = "",                    # Título mais descritivo (deixe vazio se desnecessário)
@@ -192,7 +272,7 @@ iplot(
 
 
 iplot(
-  reg14,
+  reg3,
   col = "darkblue",                  # Cor das barras
   ci.col = "gray60",                 # Cor das linhas de intervalo de confiança
   pt.col = "black",                  # Cor dos pontos
@@ -202,10 +282,10 @@ iplot(
   ci.lty = 1,                        # Tipo de linha para os intervalos de confiança
   zero = TRUE,                       # Linha de referência no zero
   zero.par = list(col = "gray50", lwd = 1), # Personalização da linha de referência
-  xlab = "Ano de Referência",        # Rótulo do eixo X
-  ylab = "Efeito Log-Rendimento Bruto", # Rótulo do eixo Y
+  xlab = "",        # Rótulo do eixo X
+  ylab = "", # Rótulo do eixo Y
   main = "",                         # Sem título no gráfico principal
-  sub = "Efeitos fixos de região e ano-mês", # Subtítulo refinado
+  sub = "", # Subtítulo refinado
   grid = TRUE,                       # Adiciona grades
   grid.par = list(lty = 3, col = "gray85"),  # Personalização das grades
   ci.fill = TRUE,                    # Preenchimento dos intervalos de confiança
@@ -215,7 +295,7 @@ iplot(
 
 
 
-### Different SEs ###
+*### Different SEs ###
 
 reg15 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, ~conglom, data=dados3)
 summary(reg15)
