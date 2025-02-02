@@ -81,7 +81,7 @@ ggsave("psm_gama.pdf",width = 12, height = 9,dpi = 300)
 
 dados2 <- subset(dados, ano %in% c(2012)) 
 
-dados4 <- subset(dados2, dados2$reg %notin% c("Gama","Sobradinho","Plano Piloto","Lago Norte","Lago Sul","Cruzeiro"))
+dados4 <- subset(dados2, dados2$reg %notin% c("Gama","Sobradinho","Plano Piloto","Lago Norte","Lago Sul","Cruzeiro","Recanto Das Emas","Riacho Fundo","Paranoá"))
 
 dados4$Santa_Maria_Treat <- ifelse(dados4$reg == "Santa Maria", 1, 0)
 
