@@ -35,13 +35,13 @@ dados3 <- dados |>
 attach(dados3)
 
 reg1 <- feols(log(rend_bruto) ~ BRT_Effect| reg + aamm, ~reg,weights = ~peso,data=dados3)
-summary(reg1)
 
-reg2 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2  |  reg + aamm + fem + cor + posicao_fam, ~reg,weights = ~peso, data=dados3)
-summary(reg2)
+
+reg2 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2  |  reg + aamm + fem + cor + posicao_fam+ escol, ~reg,weights = ~peso, data=dados3)
+
 
 reg3 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2  |  reg + aamm + fem + cor + escol + posicao_fam + setor_atv, ~reg,weights = ~peso, data=dados3)
-summary(reg3)
+
 
 modelsummary(list(reg1,reg2,reg3),
              coef_map = c("BRT_Effect" = "Efeito BRT","Treat"= "Tratado"),
@@ -53,13 +53,13 @@ modelsummary(list(reg1,reg2,reg3),
 attach(dados2)
 
 reg7 <- feols(log(rend_bruto) ~ BRT_Effect | reg + aamm, ~reg,weights = ~peso, data=dados2)
-summary(reg7)
 
-reg8 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + posicao_fam, ~reg,weights = ~peso, data=dados2)
-summary(reg6)
+
+reg8 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + posicao_fam+ escol, ~reg,weights = ~peso, data=dados2)
+
 
 reg9 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam, ~reg,weights = ~peso, data=dados2)
-summary(reg8)
+
 
 
 modelsummary(list(reg7, reg8, reg9, reg1, reg2, reg3),
@@ -178,7 +178,7 @@ legend("topleft",
 
 ## Different SEs ----
 
-reg15 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, ~conglom, data=dados3)
+reg15 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, ~reg, data=dados3)
 summary(reg15)
 
 reg16 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, vcov = "hetero", data=dados3)
@@ -191,7 +191,7 @@ reg18 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + esco
 summary(reg18)
 
 modelsummary(list(reg15,reg16,reg17,reg18),coef_map = c("BRT_Effect" = "Efeito BRT"),
-             output = "latex_tabular",
+             #output = "latex_tabular",
              stars = T)
 
 ## Heterogeneity ----
@@ -249,7 +249,7 @@ modelsummary(list("Baixa Escolaridade" = reg_baixa,
                   "Ensino Médio" = reg_medio,
                   "Ensino Superior" = reg_sup),
              coef_map = c("BRT_Effect" = "Efeito BRT"),
-             output = "latex_tabular",
+             #output = "latex_tabular",
              stars = T)
 
 # Idade
@@ -304,7 +304,10 @@ reg45 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem 
 
 reg46 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent10))
 
-modelsummary(list(reg43,reg44,reg45,reg46),
+modelsummary(list("Completo" = reg43,
+                  "Sem 1% mais ricos" = reg44,
+                  "Sem 5% mais ricos" = reg45,
+                  "Sem 10% mais ricos" = reg46),
 coef_map = c("BRT_Effect" = "Efeito BRT"),
 output = "default", #"latex_tabular",
 stars = T)
@@ -348,15 +351,94 @@ dados6 <- dados |>
 
 
 
-feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
+reg51 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
       data=dados3)
 
-feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
+reg52 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
       data=dados4)
 
 
-feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
+reg53 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
       data=dados5)
 
-feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
+reg54 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, 
       data=dados6)
+
+
+modelsummary(list("Nearest" = reg51,
+                  "Second Nearest" = reg52,
+                  "Third Nearest" = reg53),
+             coef_map = c("BRT_Effect" = "Efeito BRT"),
+             output = "default", #"latex_tabular",
+             stars = T)
+
+regioes <- unique(dados$reg)[-c(1:2,13:14,21)]
+
+lista <- list() 
+
+for (i in regioes) {
+  # Filtra os dados para incluir apenas Santa Maria e a região iterada
+  temp <- dados |>
+    filter(
+      reg %in% c("Santa Maria", i),  # Agora filtra corretamente Santa Maria e a região atual
+      !(ano %in% c(2009, 2018:2019))) |> 
+    mutate(
+      BRT_Effect = ifelse(aamm > "201406" & reg == "Santa Maria", 1, 0),
+      Treat = ifelse(reg == "Santa Maria", 1, 0)
+    )
+  
+  # Estima o modelo e armazena o coeficiente do efeito BRT
+  modelo <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | 
+                    reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  
+                  ~reg, weights = ~peso, data=temp)
+  
+  # Armazena o coeficiente do efeito BRT na lista
+  lista[[i]] <- data.frame(reg = i, coef = coefficients(modelo)["BRT_Effect"])
+}
+
+# Exibir a lista de coeficientes
+teste <- bind_rows(lista)
+
+
+
+for (i in regioes) {
+  # Filtra os dados para incluir apenas Santa Maria e a região iterada
+  temp <- dados |>
+    filter(
+      reg %in% c("Santa Maria", i),  # Agora filtra corretamente Santa Maria e a região atual
+      !(ano %in% c(2009, 2018:2019))) |> 
+    mutate(
+      BRT_Effect = ifelse(aamm > "201406" & reg == "Santa Maria", 1, 0),
+      Treat = ifelse(reg == "Santa Maria", 1, 0)
+    )
+  
+  # Estima o modelo e armazena o coeficiente do efeito BRT
+  modelo <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | 
+                    reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  
+                  ~reg, weights = ~peso, data=temp)
+
+  print(i)
+  print(modelo)
+
+}
+
+source("config.R")
+library(mapview)
+library(paletteer)
+
+malha_2010 <- st_read(build("Shapes/2010/53SEE250GC_SIR.shp"), options = "ENCODING=WINDOWS-1252")
+
+malha_2010 <- st_set_crs(malha_2010, 4674)  
+
+# Cria malha de Subdistritos para mapas
+malha_subdist<- malha_2010  |> 
+  mutate(reg = ifelse(NM_SUBDIST == "BRASÍLIA","Plano Piloto",str_to_title(NM_SUBDIST))) |>
+  st_make_valid() |> 
+  group_by(reg) |> 
+  summarise(geometry = st_union(geometry)) |> 
+  left_join(teste)
+
+mapview(malha_subdist, zcol = "coef",col.regions = paletteer_c("ggthemes::Classic Red", 20))
+mapview(malha_subdist, zcol = "coef",col.regions = paletteer_c("grDevices::Oslo", 20))
+
+
