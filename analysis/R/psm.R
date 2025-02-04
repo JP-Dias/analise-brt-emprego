@@ -81,14 +81,13 @@ ggsave("psm_gama.pdf",width = 12, height = 9,dpi = 300)
 
 dados2 <- subset(dados, ano %in% c(2012)) 
 
-dados4 <- subset(dados2, dados2$reg %notin% c("Gama","Sobradinho","Plano Piloto","Lago Norte","Lago Sul","Cruzeiro","Recanto Das Emas","Riacho Fundo","Paranoá"))
+dados4 <- subset(dados2, dados2$reg %notin% c("Gama","Sobradinho","Plano Piloto","Lago Norte","Lago Sul","Cruzeiro"))
 
 dados4$Santa_Maria_Treat <- ifelse(dados4$reg == "Santa Maria", 1, 0)
 
-
 PSM2 <- matchit(Santa_Maria_Treat ~ perc_analf + perc_idoso + perc_informal + perc_mora_trabalha
                 + log(n_empregos) + log(massa_salarial) + log(densidade_2010), 
-                data = dados4, method = "nearest",link = "logit")
+                data = dados4, method = "optimal",link = "probit")
 
 PSM2
 summary(PSM2)

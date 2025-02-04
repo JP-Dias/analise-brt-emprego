@@ -61,7 +61,6 @@ reg8 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem +
 reg9 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam, ~reg,weights = ~peso, data=dados2)
 
 
-
 modelsummary(list(reg7, reg8, reg9, reg1, reg2, reg3),
              #output = "latex_tabular", 
              coef_map = c("BRT_Effect" = "Efeito BRT","Treat"= "Tratado"),
