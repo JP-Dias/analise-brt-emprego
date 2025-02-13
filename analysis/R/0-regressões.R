@@ -173,8 +173,39 @@ legend("topleft",
        pch = c(20, 17, 15, 1),  
        pt.cex = 1.5,  
        title = "Cluster de Erro Padrão")  
-# 9.8 x 6.0
 
+
+modelo5 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) | reg + aamm, 
+                 cluster = "aamm",
+                 weights = ~peso,
+                 data = dados3)
+
+modelo6 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,
+                 cluster = "aamm",
+                 weights = ~peso,
+                 data = dados3)
+
+par(mar = c(3, 4, 1, 2))
+
+iplot(list(modelo5, modelo6), 
+      col = c("brown", "darkblue"), 
+      pt.size = 1.5,
+      ylab = "Efeito Log-Rendimento Bruto",
+      xlab = "",
+      sub = "",
+      main = "")
+
+
+legend("topleft",
+       legend = c("Sem controles", "Máximo de Controles"), 
+       col = c("brown", "darkblue"),
+       pch = c(20, 17),
+       pt.cex = 1.5,  
+       title = "Modelo")
+
+
+
+# 9.8 x 6.0
 ## Different SEs ----
 
 reg15 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, ~conglom, data=dados3)
