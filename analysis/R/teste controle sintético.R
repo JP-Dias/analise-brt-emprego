@@ -3,6 +3,8 @@ library(Synth)
 library(haven)
 library(zoo)
 library(Hmisc)
+library(tidyverse)
+
 
 # Leitura da base de dados
 base <- readRDS("analysis/dados/base_ra.RDS") 
@@ -70,11 +72,45 @@ synth.tables <- synth.tab(dataprep.res = dados_synth, synth.res = modelo_synth)
 print(synth.tables)
 
 
+par(mar = c(3, 4, 1, 2))
+
 path.plot(synth.res = modelo_synth, dataprep.res = dados_synth, 
           Ylab = "Rendimentos Brutos", 
           Xlab = "", 
           Legend = c("Santa Maria", "Sintético"))
 
+ymin <- min(dados_synth$Y1plot, dados_synth$Y0plot %*% modelo_synth$solution.w) - 500
+ymax <- max(dados_synth$Y1plot, dados_synth$Y0plot %*% modelo_synth$solution.w) + 500
 
+# Criando o gráfico manualmente
+par(mar = c(3, 4, 1, 2))
 
+# Plotando a linha da unidade tratada (Santa Maria)
+plot(
+  dados_synth$tag$time.plot,                    # Eixo X (anos)
+  dados_synth$Y1plot,                           # Eixo Y (rendimentos brutos)
+  type = "l",                                   # Tipo de gráfico: linha
+  col = "darkblue",                                 # Cor da linha tratada
+  lwd = 2,                                      # Espessura da linha
+  ylim = c(ymin, ymax),   
+  xlab = "", 
+  ylab = "Rendimentos Brutos"
+)
+
+# Adicionando a linha do controle sintético
+lines(
+  dados_synth$tag$time.plot, 
+  dados_synth$Y0plot %*% modelo_synth$solution.w, 
+  col = "darkred", 
+  lwd = 2, 
+  lty = 2 # Linha tracejada
+)
+
+# Adicionando legenda
+legend("topleft", 
+       legend = c("Santa Maria", "Sintético"), 
+       col = c("darkblue", "darkred"), 
+       lwd = 2, 
+       lty = c(1, 2),
+       bty = "n")
 

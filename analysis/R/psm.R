@@ -165,3 +165,80 @@ dados4 |>
   labs(x = "", y = "", col = "", fill = "")
 
 ggsave("psm_sm.pdf",width = 12, height = 9,dpi = 300)
+
+
+dados |> 
+  filter(ano %in% c(2013),
+         !(reg %in% c("Santa Maria","Recanto Das Emas","Gama","Ceilândia"))) |> 
+  mutate(
+    log_renda_fam_media = log(renda_fam_media),
+    log_n_empregos = log(n_empregos),
+    log_massa_salarial = log(massa_salarial),
+    log_densidade_2010 = log(densidade_2010)
+  ) |> 
+  select(reg,perc_idoso,perc_analf,perc_sup,perc_nasc_df, media_familia,
+         perc_mora_trabalha,log_densidade_2010,perc_ocupado,perc_informal,
+         log_renda_fam_media,log_n_empregos ,log_massa_salarial,log_densidade_2010) |> 
+  group_by(reg) |> 
+  mutate
+
+
+geral <- dados |> 
+  filter(ano %in% c(2013),
+         !(reg %in% c("Santa Maria","Recanto Das Emas","Gama","Ceilândia"))) |> 
+  mutate(
+    log_renda_fam_media = log(renda_fam_media),
+    log_n_empregos = log(n_empregos),
+    log_massa_salarial = log(massa_salarial),
+    log_densidade_2010 = log(densidade_2010)
+  ) |> 
+  select(perc_idoso, perc_analf, perc_sup, perc_nasc_df, media_familia,
+         perc_mora_trabalha, log_densidade_2010, perc_ocupado, perc_informal,
+         log_renda_fam_media, log_n_empregos, log_massa_salarial) |> 
+  group_by(ano) |> 
+  summarise(across(everything(), mean, na.rm = TRUE)) |> 
+  ungroup() |> 
+  mutate(reg = "Outras regiões") |> 
+  select(ano,reg,everything()) |> 
+  gather("var", "valor", c(3:14))
+
+media_baixa <- dados |> 
+filter(ano %in% c(2013),reg %in% c("Santa Maria","Recanto Das Emas")) |> 
+  mutate(
+    log_renda_fam_media = log(renda_fam_media),
+    log_n_empregos = log(n_empregos),
+    log_massa_salarial = log(massa_salarial),
+    log_densidade_2010 = log(densidade_2010)
+  ) |> 
+  ungroup() |> 
+  select(reg,perc_idoso,perc_analf,perc_sup,perc_nasc_df, media_familia,
+         perc_mora_trabalha,log_densidade_2010,perc_ocupado,perc_informal,
+         log_renda_fam_media,log_n_empregos ,log_massa_salarial,log_densidade_2010) |> 
+  gather("var", "valor", c(2:13)) 
+
+
+media_alta <- dados |> 
+  filter(ano %in% c(2013),reg %in% c("Gama","Ceilândia")) |> 
+  mutate(
+    log_renda_fam_media = log(renda_fam_media),
+    log_n_empregos = log(n_empregos),
+    log_massa_salarial = log(massa_salarial),
+    log_densidade_2010 = log(densidade_2010)
+  ) |> 
+  ungroup() |> 
+  select(reg,perc_idoso,perc_analf,perc_sup,perc_nasc_df, media_familia,
+         perc_mora_trabalha,log_densidade_2010,perc_ocupado,perc_informal,
+         log_renda_fam_media,log_n_empregos ,log_massa_salarial,log_densidade_2010) |> 
+  gather("var", "valor", c(2:13))
+
+
+left_join(
+  media_baixa |> filter(reg == "Santa Maria") |> select(var, `Santa Maria` = valor),
+  media_baixa |> filter(reg == "Recanto Das Emas") |> select(var, `Recanto Das Emas` = valor)) |> 
+  left_join(geral |> select(var,Restante = valor))
+
+
+left_join(
+  media_alta |> filter(reg == "Gama") |> select(var, `Gama` = valor),
+  media_alta |> filter(reg == "Ceilândia") |> select(var, `Ceilândia` = valor)) |> 
+  left_join(geral |> select(var,Restante = valor))

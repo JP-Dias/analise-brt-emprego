@@ -107,12 +107,12 @@ iplot(reg14,
 
 
 modelo1 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) | reg + aamm, 
-                 cluster = "reg",
+                 cluster = "aamm",
                  weights = ~peso,
                  data = dados3)
 
 modelo2 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,
-                 cluster = "reg",
+                 cluster = "aamm",
                  weights = ~peso,
                  data = dados3)
 
@@ -129,7 +129,7 @@ modelo4 <- feols(log(rend_bruto) ~ i(ano, Treat, 2013) + idade + idade2 | reg + 
 par(mar = c(3, 4, 1, 2))
 
 iplot(list(modelo1, modelo2), 
-      col = c("darkblue", "darkred"), 
+      col = c("darkred","darkblue"), 
       pt.size = 1.5,
       ylab = "Efeito Log-Rendimento Bruto",
       xlab = "",
@@ -137,8 +137,8 @@ iplot(list(modelo1, modelo2),
       main = "")
 
 legend("topleft",  
-       legend = c("Modelo Simples", "Modelo com Controles"),
-       col = c("darkblue", "darkred"), 
+       legend = c("Sem controles", "Maximo de Controles"),
+       col = c("darkred","darkblue"), 
        pch = c(20, 17), 
        pt.cex = 1.5, 
        title = "Modelo")  
@@ -177,7 +177,7 @@ legend("topleft",
 
 ## Different SEs ----
 
-reg15 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, ~reg, data=dados3)
+reg15 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, ~conglom, data=dados3)
 summary(reg15)
 
 reg16 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso, vcov = "hetero", data=dados3)
@@ -189,8 +189,8 @@ summary(reg17)
 reg18 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + escol + fem + setor_atv + cor + posicao_fam,weights = ~peso,cluster = c("conglom","aamm"), data=dados3)
 summary(reg18)
 
-modelsummary(list(reg15,reg16,reg17,reg18),coef_map = c("BRT_Effect" = "Efeito BRT"),
-             #output = "latex_tabular",
+modelsummary(list(reg3,reg15,reg16,reg17,reg18),coef_map = c("BRT_Effect" = "Efeito BRT"),
+             output = "latex_tabular",
              stars = T)
 
 ## Heterogeneity ----
@@ -283,9 +283,10 @@ modelsummary(list("18-29"=reg33,
 dados3 <- dados3 |> 
   group_by(aamm) |> 
   mutate(
-    cent1 = quantile(rend_bruto,.99,na.rm = T),
-    cent5 = quantile(rend_bruto,.95,na.rm = T),
-    cent10 = quantile(rend_bruto,.9,na.rm = T)
+    cent99 = quantile(rend_bruto,.99,na.rm = T),
+    cent95 = quantile(rend_bruto,.95,na.rm = T),
+    cent90 = quantile(rend_bruto,.9,na.rm = T),
+    cent05 = quantile(rend_bruto,.05,na.rm = T)
     )
 
 
@@ -295,33 +296,36 @@ feols(rend_bruto ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol 
 reg43 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
 
 
-reg44 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent1))
+reg44 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent95))
 
 
-reg45 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent5))
+reg45 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto>cent05))
 
 
-reg46 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent10))
+reg46 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter((rend_bruto>cent05) & (rend_bruto<cent95)))
+
+
+#reg46 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent10))
 
 modelsummary(list("Completo" = reg43,
-                  "Sem 1% mais ricos" = reg44,
-                  "Sem 5% mais ricos" = reg45,
-                  "Sem 10% mais ricos" = reg46),
+                  "Sem 5% mais ricos" = reg44,
+                  "Sem 5% mais pobres" = reg45,
+                  "Sem 5% mais ricos e 5% mais pobres" = reg46),
 coef_map = c("BRT_Effect" = "Efeito BRT"),
 output = "default", #"latex_tabular",
 stars = T)
 
-reg47 <- feols(rend_bruto ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
+reg47 <- feols(log(rend_bruto) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
 
-reg48 <- feols(rend_bruto ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent1))
+reg48 <- feols(rend_bruto ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
 
-reg49 <- feols(rend_bruto ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent5))
+reg49 <- feols(log(rend_bruto/horas_trab) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
 
-reg50 <- feols(rend_bruto ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3 |> filter(rend_bruto<cent10))
+reg50 <- feols(log(rend_bruto/pessoas) ~ BRT_Effect + idade + idade2 | reg + aamm + fem + cor + escol + setor_atv + posicao_fam,  ~reg,weights = ~peso, data=dados3)
 
 modelsummary(list(reg47,reg48,reg49,reg50),
              coef_map = c("BRT_Effect" = "Efeito BRT"),
-             output = "default", #"latex_tabular",
+             output = "latex_tabular",
              stars = T)
 
 ## Diferent control regions ----

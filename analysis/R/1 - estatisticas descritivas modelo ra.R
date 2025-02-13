@@ -64,6 +64,8 @@ tab1_gama <- base_gama |>
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
 
 
+tab1_gama
+
 tabela_gama <- cbind(tab1_gama |> filter(periodo == "Pre-BRT") |> select(-periodo),
                 tab1_gama |> filter(periodo == "Post-BRT")|> select(-c(periodo,Variável))) |> 
   kableExtra::kable(col.names = c("Variável", "Control Mean", "Control SD", "Treated Mean", "Treated SD", 
@@ -118,6 +120,8 @@ tab1_sm <- base_sm |>
   pivot_longer(cols = Ocupados_Mean:Outros_SD, names_to = "Variável", values_to = "Valor") |>
   separate(Variável, into = c("Variável", "Métrica")) |> 
   pivot_wider(names_from = c(grupo, Métrica), values_from = Valor)
+
+tab1_sm
 
 tabela_sm <- cbind(tab1_sm |> filter(periodo == "Pre-BRT") |> select(-periodo),
                      tab1_sm |> filter(periodo == "Post-BRT")|>select(-c(periodo,Variável))) |> 
