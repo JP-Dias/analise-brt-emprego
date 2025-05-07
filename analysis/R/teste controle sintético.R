@@ -42,6 +42,8 @@ dados1 <- dados |>
   mutate(reg_id = as.numeric(as.factor(reg))) |> 
   as.data.frame() |> na.omit()
 
+write.csv2(dados1,"dados_controle_sintetico.csv")
+
 str(dados1)
 
 dados_synth <- dataprep(
