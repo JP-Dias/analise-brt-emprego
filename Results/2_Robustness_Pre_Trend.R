@@ -51,11 +51,14 @@ par(mar = c(3, 4, 1, 1), family = "cmunrm")
 iplot(reg1, 
       pt.col = "darkblue", 
       ci.col = "#1f78b4", 
-      pt.size = 1.5,
+      cex = 1.2,
       ylab = "Estimate and 95% confidence interval",
+      ylim = c(-0.2, 0.20),
+      x = c(2009:2017),
       xlab = "",
       sub = "",
       main = "")
+
 
 
 
@@ -72,6 +75,8 @@ iplot(reg2,
       ci.col = "#1f78b4", 
       pt.size = 1.5,
       ylab = "Estimate and 95% confidence interval",
+      ylim = c(-0.1, 0.1),
+      x = c(2009:2017),
       xlab = "",
       sub = "",
       main = "")
