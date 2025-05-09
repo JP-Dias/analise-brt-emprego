@@ -51,7 +51,7 @@ par(mar = c(3, 4, 1, 1), family = "cmunrm")
 iplot(reg1, 
       pt.col = "darkblue", 
       ci.col = "#1f78b4", 
-      cex = 1.2,
+      cex = 1.1,
       ylab = "Estimate and 95% confidence interval",
       ylim = c(-0.2, 0.20),
       x = c(2009:2017),
@@ -70,9 +70,23 @@ event_study_plot2 <- iplot(reg2)
 
 par(mar = c(3, 4, 1, 1), family = "cmunrm")
 
+# 8 x 5 inches 
+
 iplot(reg2, 
       pt.col = "darkblue", 
       ci.col = "#1f78b4", 
+      cex = 1.1,
+      ylab = "",
+      ylim = c(-0.2, 0.20),
+      x = c(2009:2017),
+      xlab = "",
+      sub = "",
+      main = "")
+
+
+iplot(reg2, 
+      pt.col = "darkred", 
+      ci.col = "darkred", 
       pt.size = 1.5,
       ylab = "Estimate and 95% confidence interval",
       ylim = c(-0.1, 0.1),
@@ -81,7 +95,23 @@ iplot(reg2,
       sub = "",
       main = "")
 
+iplot(list(reg1,reg2), 
+      pt.col = c("darkblue","darkred"), 
+      ci.col = c("darkblue","darkred"), 
+      pt.size = 1.5,
+      ylab = "Estimates and 95% confidence interval",
+      ylim = c(-0.2, 0.2),
+      x = c(2009:2017),
+      xlab = "",
+      sub = "",
+      main = "")
 
+legend("topleft",  
+       legend = c("Hourly Earnings", "Employment"),
+       col = c("darkblue","darkred"), 
+       pch = c(20, 17), 
+       pt.cex = 1.5, 
+       title = "model")  
 
 ### HonestDiD - Santa Maria - Earnings ###
 
@@ -116,11 +146,19 @@ honest_plot1 <- honest_plot1 +
   theme_bw(base_family = "cmunrm",base_size = 15) +
   labs(
     title = "",
-    x = "M",
+    x = "_\nM",
     y = "95% confidence interval",
     color = ""
   ) +
+  theme(
+    legend.position = "top",
+    plot.margin = margin(.1, 5, .1, 5), 
+    legend.margin = margin(0, 0, 0, 0),
+    legend.box.margin = margin(0, 0, 0, 0)
+  ) +
   scale_color_manual(values = c("#1f78b4","darkblue"))
+
+honest_plot1
 
 ### HonestDiD - Santa Maria - Employment ###
 
@@ -151,15 +189,23 @@ originalResults2 <- constructOriginalCS(betahat = betahat2,
 honest_plot2 <- createSensitivityPlot_relativeMagnitudes(delta_rm_results_employment, originalResults2)
 
 honest_plot2 <- honest_plot2 +
-  theme_bw(base_family = "cmunrm",base_size = 15) +
+  theme_bw(base_family = "cmunrm",base_size = 16) +
   labs(
     title = "",
     x = "M",
     y = "95% confidence interval",
     color = ""
   ) +
+  theme(
+    legend.position = "top",
+    plot.margin = margin(.1, 5, .1, 5), 
+    legend.margin = margin(0, 0, 0, 0),
+    legend.box.margin = margin(0, 0, 0, 0)
+  ) +
   scale_color_manual(values = c("#1f78b4","darkblue"))
 
+
+honest_plot2
 #### Saving the Figures #####
 
 
