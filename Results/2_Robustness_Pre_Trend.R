@@ -156,6 +156,7 @@ honest_plot1 <- honest_plot1 +
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0)
   ) +
+  scale_x_continuous(breaks = seq(0,.4,.05)) +
   scale_color_manual(values = c("#1f78b4","darkblue"))
 
 honest_plot1
@@ -202,6 +203,8 @@ honest_plot2 <- honest_plot2 +
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0)
   ) +
+  
+  scale_x_continuous(breaks = seq(0,.4,.05)) +
   scale_color_manual(values = c("#1f78b4","darkblue"))
 
 

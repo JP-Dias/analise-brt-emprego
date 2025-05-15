@@ -15,7 +15,7 @@ relacao_malhas <- read_sav(build("relacao/malhas2000e2010/Compatibiliza DF FINAL
 
 # Malhas Censitárias ----
 malha_2000 <- read_sf(build("Shapes/2000/5300108.SHP"))
-malha_2010 <- read_sf(build("Shapes/2010/53SEE250GC_SIR.shp"))
+malha_2010 <- read_sf(build("Shapes/2010/53SEE250GC_SIR.shp"),options = "ENCODING=WINDOWS-1252")
 
 malha_2000 <- st_set_crs(malha_2000, 32723)
 malha_2000 <- st_transform(malha_2000, 32723)
