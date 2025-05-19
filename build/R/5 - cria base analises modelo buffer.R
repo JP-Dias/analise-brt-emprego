@@ -26,6 +26,19 @@ buffer65 <- st_buffer(estacoes_brt, dist = 6500)
 setores_validos <- st_make_valid(join_ped_09_16_malha_2000)
 setores_validos <- st_make_valid(join_ped_16_19_malha_2000)
 
+base_setores <- rbind(join_ped_09_16_malha_2000 |> select(-conglom),
+join_ped_16_19_malha_2000)
+
+base_setores <- base_setores |> 
+  rename(
+    CD2000 = CODSETOR2000,
+    CD2010 = CODSETOR2010,
+    SUBDIST = NM_SUBDIST
+  )
+
+st_write(base_setores, "analysis/mapas/mapas/shapes/base_setores.shp",append=FALSE)
+
+
 # Classifica Setores ----
 sf_use_s2(FALSE)
 ## PED ----
