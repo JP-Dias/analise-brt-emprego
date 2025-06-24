@@ -32,4 +32,7 @@ dados <- dados |> rename(CD2000 = CODSETOR2000,CD2010 = CODSETOR2010,SUBDIST = N
 
 dados_dist <- left_join(dados,unique(base_dist),by = c("ano","mes","domic","CD2000","CD2010","SUBDIST"))
 
-write.csv2(dados_dist,"W:/GEFAPS/2024/BRT/analise-brt-emprego/analysis/dados/dados_dist.csv")
+#write.csv2(dados_dist,"W:/GEFAPS/2024/BRT/analise-brt-emprego/analysis/dados/dados_dist.csv")
+
+
+saveRDS(dados_dist,"dados_dist.RDS")
